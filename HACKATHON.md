@@ -7,5 +7,5 @@
     ``` sh
     curl -fsSL https://dev.meta.ai/install.sh | sh
     ```
-- [ ] Make one real API call to muse-spark-1.3 from Romania
+- [x] Make one real API call to muse-spark-1.3 from Romania
 - [ ] Post in #intros with the one-line pitch
