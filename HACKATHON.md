@@ -2,7 +2,8 @@
 
 - [x] Claim the $150 Meta credits, add a card, set a spend-limit alert
 - [x] Create the public repo with a HACKATHON.md that logs what was built each day
-- [x] Request Modal credits (first 1,000 participants) and Baseten credits - Pending
+- [x] Request Modal credits (first 1,000 participants) - Pending
+- [x] Request Baseten credits - Pending
 - [x] Install Muse Code 
     ``` sh
     curl -fsSL https://dev.meta.ai/install.sh | sh
