@@ -18,3 +18,7 @@
 - [x] Write a lesson
 - [x] Use **Meta wonder 1.0** to generate the first lesson outline and support media
 - [x] Use **Muse image 1.0** to generate first lesson helper images
+- [x] Use **Muse code** to generate scripts for producing, caching and loading of the first lesson
+- [x] Create an implementation plan
+
+# 27.10.2026 - MVP implementation phase

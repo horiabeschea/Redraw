@@ -116,3 +116,28 @@ Planned to use **Muse Code** for development, have to check usage conditions and
 | "Why it changed" panel | |
 | Say-it check | |
 | Private mode (open weights) | |
+
+## Spec decisions (Final)
+
+Accepted by the owner. D1–D16 settled as written.
+
+- D1 (settled): settled spec/plan decisions are recorded here in `README.md`.
+- D2 (settled): solo build. No teammate; onboarding cost exceeds Demo gain with 9 days left.
+- D3 (settled): lesson screen is plain single-page HTML/JS over the golden set. No build step; React only if the why-changed panel outgrows hand-rolled DOM.
+- D4 (settled): API proxy is FastAPI (existing proven Python venv + OpenAI SDK).
+- D5 (settled): buttons and the three signal phrases work day one; realtime Voice Transcribe WebSocket with keyword biasing follows after tap grading passes. Buttons always work if voice fails.
+- D6 (settled): Lesson Builder (any-topic packs) is stretch, shown once in the video only.
+- D7 (settled): private mode is time-boxed — build it only if Baseten/Modal credits land by Nov 1. Local open weights are out (dev machine is Apple M1, no NVIDIA GPU; Glimmer needs ~24 GB VRAM).
+- D8 (settled): pitch keeps only verified McKinsey-sourced claims, each caveated; the "45–60% engagement" and "~30% outcomes" figures are removed.
+  - Adaptive loop (assess, present in receivable form, practise, feedback): [Wiring students for success](https://www.mckinsey.com/industries/education/our-insights/wiring-students-for-success).
+  - Arizona State adaptive remedial math: pass rates 64% to 75%, dropout down 7% — one program, not a general rate.
+  - Bloom's finding (one-to-one tutoring beat 98% of conventionally taught students) and Gates/RAND blended-learning gains (+11 math, +8 reading): blended learning, not AI; no dropout claim.
+  - Ownership: user researched; assistant confirmed the +11/+8 figures against the McKinsey page. ASU page could not be reloaded (fetch timeout).
+- D9 (settled): probe `sam-3.1` on one scene first; hand-drawn hotspot boxes are the fallback, decided by Oct 29 so tap grading is never blocked.
+- D10 (settled): ship the 10 independent scenes as the golden set; multi-turn edit-chaining is stretch.
+- D11 (settled): generate one "simpler" variant per step now, committed with the golden set, as the instant swap-in for the stuck path.
+- D12 (settled): say-it grading is Spark structured output (verdict + hint + kind explanation, never "wrong"), with a deterministic answer-key fallback when the call fails.
+- D13 (settled): demo shows the real child interaction — hands tapping, voice signals — never the face.
+- D14 (settled): stretch order is private mode (credits permitting) → Lesson Builder video one-shot → parent report. Brain-break and real-world bridge stay cut unless days remain.
+- D15 (settled): demo link is Modal + FastAPI (Python-native, free tier, credits already requested). Fallback is a Cloudflare Workers JS proxy. Requirement either way: outbound HTTPS to `api.meta.ai`, secret storage for the key, WebSocket proxying for Voice Transcribe.
+- D16 (settled): say-it proof is 5 correct + 5 wrong paraphrases per step (50 checks), not 10+10.
