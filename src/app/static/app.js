@@ -38,6 +38,7 @@ async function init() {
     $("tapmode").classList.toggle("active", state.tapMode); };
   $("overlay").addEventListener("click", onTap);
   wireMic();
+  wirePrivate();
   $("saysave").onclick = async () => {
     const v = $("sayit").value.trim();
     if (!v) return;
@@ -275,6 +276,31 @@ function wireMic() {
   btn.addEventListener("pointerdown", start);
   btn.addEventListener("pointerup", stop);
   btn.addEventListener("pointerleave", stop);
+}
+
+async function wirePrivate() {
+  const btn = $("priv");
+  const show = async () => {
+    try {
+      const out = await (await fetch("/api/backend")).json();
+      const on = out.backend === "baseten";
+      btn.classList.toggle("active", on);
+      btn.setAttribute("aria-pressed", on);
+    } catch (err) { /* offline page, leave default */ }
+  };
+  btn.onclick = async () => {
+    const on = btn.getAttribute("aria-pressed") !== "true";
+    try {
+      await fetch("/api/backend", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ backend: on ? "baseten" : "meta" }),
+      });
+    } catch (err) { /* offline page, visual only */ }
+    btn.classList.toggle("active", on);
+    btn.setAttribute("aria-pressed", on);
+  };
+  await show();
 }
 
 function log(signalKind, strategy, reason) {

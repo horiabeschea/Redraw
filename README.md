@@ -115,7 +115,7 @@ Planned to use **Muse Code** for development, have to check usage conditions and
 | Voice input | partial (file endpoint + mapping 10/10; live mic test + realtime WS pending) |
 | "Why it changed" panel | x (timeline renders every decision + latency) |
 | Say-it check | x (Spark grading wired; proof 47/50, never "wrong") |
-| Private mode (open weights) | |
+| Private mode (open weights) | x (Baseten connector; toggle in header; policy 8.3s, say-it 5.4s, strict schemas accepted) |
 
 ## Spec decisions (Final)
 

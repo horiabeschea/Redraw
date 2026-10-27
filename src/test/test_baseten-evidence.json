@@ -1,0 +1,46 @@
+{
+  "id": "chatcmpl-b55c8aabee7d4b6c93f257a5b202ad46",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "logprobs": null,
+      "message": {
+        "content": "Hello! 👋 How can I help you today?",
+        "refusal": null,
+        "role": "assistant",
+        "annotations": null,
+        "audio": null,
+        "function_call": null,
+        "tool_calls": null,
+        "reasoning_content": "User says hello. Need to respond friendly. Should be helpful AI assistant. Probably greet back."
+      }
+    }
+  ],
+  "created": 1793092282,
+  "model": "meta-models/muse-spark-open-1026",
+  "object": "chat.completion",
+  "metadata": null,
+  "moderation": null,
+  "service_tier": null,
+  "system_fingerprint": null,
+  "usage": {
+    "completion_tokens": 39,
+    "prompt_tokens": 147,
+    "total_tokens": 186,
+    "completion_tokens_details": {
+      "accepted_prediction_tokens": 23,
+      "audio_tokens": 0,
+      "reasoning_tokens": 19,
+      "rejected_prediction_tokens": 82,
+      "text_tokens": null
+    },
+    "prompt_tokens_details": {
+      "audio_tokens": 0,
+      "cache_write_tokens": null,
+      "cached_tokens": 128,
+      "image_tokens": null,
+      "text_tokens": null
+    }
+  }
+}

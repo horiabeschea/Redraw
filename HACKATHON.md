@@ -3,7 +3,7 @@
 - [x] Claim the $150 Meta credits, add a card, set a spend-limit alert
 - [x] Create the public repo with a HACKATHON.md that logs what was built each day
 - [x] Request Modal credits (first 1,000 participants) - Pending
-- [x] Request Baseten credits - Pending
+- [x] Request Baseten credits - Received
 - [x] Install Muse Code 
     ``` sh
     curl -fsSL https://dev.meta.ai/install.sh | sh
@@ -31,3 +31,4 @@
 - [x] Lesson screen + tap grading (geometry, 20/20) + policy replay (20/20 live) + live wiring with latency log
 - [x] Voice file endpoint + mapping tests (10/10); say-it grading wired with proof (47/50, never "wrong")
 - [x] Verifier pass 2 + adjudication record; full suite re-verified offline with zero API calls
+- [x] Baseten connector (private mode): same SDK, strict-first schemas, per-model caches, header toggle, `/api/backend` switch; probed live (policy + say-it ok)

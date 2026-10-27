@@ -46,9 +46,11 @@ def rule_fallback(answer, answer_key):
 
 
 def grade(client, answer, answer_key, misconception=None, cache_dir=None,
-          refresh=False):
+          refresh=False, model=None):
+    model = model or "muse-spark-1.3"
     digest = hashlib.sha256(
-        json.dumps({"v": 2, "a": answer, "k": answer_key, "m": misconception},
+        json.dumps({"v": 3, "a": answer, "k": answer_key, "m": misconception,
+                    "model": model},
                    sort_keys=True).encode()).hexdigest()[:16]
     cache_path = (os.path.join(cache_dir, f"sayit_{digest}.json")
                   if cache_dir else None)
@@ -58,24 +60,19 @@ def grade(client, answer, answer_key, misconception=None, cache_dir=None,
     if client is None:
         return rule_fallback(answer, answer_key), False
     try:
-        from openai import OpenAI  # noqa: F401 (documents the client type)
+        from app.backends import create_structured
         veto = (f"Children often believe this lie: '{misconception}'. "
                 f"Any answer stating it gets 'not_yet'." if misconception
                 else "")
-        resp = client.responses.create(
-            model="muse-spark-1.3",
-            reasoning={"effort": "low"},
-            input=("Grade a child's spoken answer against the answer key. "
-                    "Verdict 'ok' ONLY if every required idea appears in any "
-                    "words; a partial answer with one idea missing gets "
-                    "'not_yet'. " + veto + " Never say 'wrong'; the hint is "
-                    "one kind question leading forward.\n"
-                    f"Answer key: {answer_key}\nChild: {answer}"),
-            text={"format": {"type": "json_schema", "name": "sayit",
-                             "strict": True, "schema": SAYIT_SCHEMA}},
-        )
-        out = json.loads(resp.output_text)
-        validate(SAYIT_SCHEMA, out)
+        out, _ = create_structured(
+            client, model,
+            ("Grade a child's spoken answer against the answer key. "
+             "Verdict 'ok' ONLY if every required idea appears in any "
+             "words; a partial answer with one idea missing gets "
+             "'not_yet'. " + veto + " Never say 'wrong'; the hint is "
+             "one kind question leading forward.\n"
+             f"Answer key: {answer_key}\nChild: {answer}"),
+            SAYIT_SCHEMA, "sayit")
     except Exception:
         out = rule_fallback(answer, answer_key)
         return out, False

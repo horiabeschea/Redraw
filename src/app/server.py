@@ -36,16 +36,21 @@ ROOT = os.path.dirname(os.path.dirname(os.path.dirname(
 LESSON_DIR = os.path.join(ROOT, "lessons", "water-cycle")
 CACHE_DIR = os.path.join(LESSON_DIR, ".cache")
 LATENCY_LOG = os.path.join(CACHE_DIR, "latency.jsonl")
-_client = None
+BACKEND = os.environ.get("REDRAW_BACKEND", "meta")
+
+_clients = {}
 
 
 def get_client():
-    global _client
-    if _client is None and os.environ.get("MODEL_API_KEY"):
-        from openai import OpenAI
-        _client = OpenAI(base_url="https://api.meta.ai/v1",
-                         api_key=os.environ["MODEL_API_KEY"])
-    return _client
+    from app.backends import BACKENDS, get_client as make_client
+    if BACKEND not in _clients:
+        _clients[BACKEND] = make_client(BACKEND)
+    return _clients[BACKEND]
+
+
+def backend_models():
+    from app.backends import BACKENDS
+    return BACKENDS[BACKEND]
 STATIC_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")
 SCENES_DIR = os.path.join(LESSON_DIR, "scenes")
 
@@ -89,6 +94,9 @@ class Handler(BaseHTTPRequestHandler):
                 STATIC_DIR, url.path.lstrip("/")) or "")
         if url.path == "/api/pack":
             return self._send_file(os.path.join(LESSON_DIR, "pack.json"))
+        if url.path == "/api/backend":
+            return self._send(200, json.dumps({"backend": BACKEND}),
+                              "application/json")
         if url.path.startswith("/assets/"):
             path = _safe_join(SCENES_DIR, *url.path[len("/assets/"):].split("/"))
             if path and os.path.isfile(path):
@@ -114,6 +122,19 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_POST(self):  # noqa: N802 (stdlib handler naming)
         url = urlparse(self.path)
+        if url.path == "/api/backend":
+            global BACKEND
+            try:
+                body = json.loads(self.rfile.read(
+                    int(self.headers.get("Content-Length", 0))) or b"{}")
+                if body.get("backend") not in ("meta", "baseten"):
+                    raise ValueError("backend must be meta or baseten")
+                BACKEND = body["backend"]
+                return self._send(200, json.dumps({"backend": BACKEND}),
+                                  "application/json")
+            except Exception as e:
+                return self._send(400, json.dumps({"error": str(e)}),
+                                  "application/json")
         if url.path == "/api/voice":
             try:
                 from app.voice import phrase_to_signal, transcribe_wav
@@ -143,7 +164,8 @@ class Handler(BaseHTTPRequestHandler):
                 t0 = time.monotonic()
                 out, from_cache = grade(
                     get_client(), body["answer"], s["say_it"]["answer_key"],
-                    s["misconception"], CACHE_DIR)
+                    s["misconception"], CACHE_DIR,
+                    model=backend_models()["sayit_model"])
                 ms = int((time.monotonic() - t0) * 1000)
                 with open(LATENCY_LOG, "a", encoding="utf-8") as f:
                     f.write(json.dumps({"route": "sayit", "ms": ms,
@@ -162,7 +184,7 @@ class Handler(BaseHTTPRequestHandler):
             t0 = time.monotonic()
             decision, from_cache = decide(
                 get_client(), body["signal"], body["step"], body["learner"],
-                CACHE_DIR)
+                CACHE_DIR, model=backend_models()["policy_model"])
             ms = int((time.monotonic() - t0) * 1000)
             with open(LATENCY_LOG, "a", encoding="utf-8") as f:
                 f.write(json.dumps({"route": "policy", "ms": ms,

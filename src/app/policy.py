@@ -40,9 +40,11 @@ def rule_fallback(signal, step, learner=None):
             "fallback": True}
 
 
-def decide(client, signal, step, learner, cache_dir=None, refresh=False):
-    key = json.dumps({"signal": signal, "step": step, "learner": learner},
-                     sort_keys=True)
+def decide(client, signal, step, learner, cache_dir=None, refresh=False,
+           model=None):
+    model = model or MODEL
+    key = json.dumps({"signal": signal, "step": step, "learner": learner,
+                      "model": model}, sort_keys=True)
     digest = hashlib.sha256(key.encode()).hexdigest()[:16]
     cache_path = (os.path.join(cache_dir, f"policy_{digest}.json")
                   if cache_dir else None)
@@ -52,25 +54,20 @@ def decide(client, signal, step, learner, cache_dir=None, refresh=False):
     if client is None:
         return rule_fallback(signal, step, learner), False
     try:
-        resp = client.responses.create(
-            model=MODEL,
-            reasoning={"effort": "low"},
-            input=("You are the adaptation policy for a child's water-cycle "
-                    "lesson. The child steers with explicit signals only.\n"
-                    f"Signal: {signal}\nStep: {json.dumps(step)}\n"
-                    f"Learner: {json.dumps(learner)}\n"
-                    "Pick the strategy that fits: stuck needs easier "
-                    "(simplify_language first, redraw_simpler if stuck "
-                    "persists); the first bored signal gets "
-                    "switch_to_tap_game, but bored_count 2 or more means "
-                    "raise_challenge; got_it advances. "
-                    "Reason in one plain sentence."),
-            text={"format": {"type": "json_schema", "name": "decision",
-                             "strict": True,
-                             "schema": ADAPTATION_DECISION_SCHEMA}},
-        )
-        decision = json.loads(resp.output_text)
-        validate(ADAPTATION_DECISION_SCHEMA, decision)
+        from app.backends import create_structured
+        decision, _ = create_structured(
+            client, model,
+            ("You are the adaptation policy for a child's water-cycle "
+             "lesson. The child steers with explicit signals only.\n"
+             f"Signal: {signal}\nStep: {json.dumps(step)}\n"
+             f"Learner: {json.dumps(learner)}\n"
+             "Pick the strategy that fits: stuck needs easier "
+             "(simplify_language first, redraw_simpler if stuck "
+             "persists); the first bored signal gets "
+             "switch_to_tap_game, but bored_count 2 or more means "
+             "raise_challenge; got_it advances. "
+             "Reason in one plain sentence."),
+            ADAPTATION_DECISION_SCHEMA, "decision")
     except Exception:
         decision = rule_fallback(signal, step, learner)
         return decision, False
