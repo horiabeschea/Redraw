@@ -53,6 +53,8 @@ WORLD_BACK = {
 STEP_SCHEMA = {
     "type": "object",
     "properties": {
+        "step": {"type": "integer", "minimum": 1, "maximum": 5},
+        "step_name": {"type": "string"},
         "caption": {"type": "string"},
         "simpler_caption": {"type": "string"},
         "misconception": {"type": "string"},
@@ -71,7 +73,8 @@ STEP_SCHEMA = {
                           "additionalProperties": {"type": "string"}},
     },
     "required": ["caption", "simpler_caption", "misconception", "correction",
-                 "analogies", "tap_question", "say_it", "image_prompts"],
+                 "analogies", "tap_question", "say_it", "image_prompts",
+                 "step", "step_name"],
     "additionalProperties": False,
 }
 
@@ -184,8 +187,12 @@ def existing_image(d):
     return os.path.join(d, "image.webp")
 
 
+SIMPLER_SUFFIX = (" Simplified variant of the same scene: fewer details, "
+                  "larger shapes, less clutter, same layout and colours.")
+
+
 def get_images(client, pack, refresh=False, only_world=None, only_step=None,
-               no_images=False):
+               no_images=False, variant="normal"):
     if no_images:
         return
     for i, step in enumerate(pack["steps"]):
@@ -196,11 +203,14 @@ def get_images(client, pack, refresh=False, only_world=None, only_step=None,
             if only_world is not None and world != only_world:
                 continue
             d = os.path.join(SCENES_DIR, f"step{n}", world)
-            img_path = existing_image(d)
+            name = "image.webp" if variant == "normal" else "simpler.webp"
+            img_path = os.path.join(d, name)
             if os.path.exists(img_path) and not refresh:
                 print(f"cache hit: {img_path} (no API call)")
                 continue
             prompt = build_image_prompt(step, world)
+            if variant == "simpler":
+                prompt += SIMPLER_SUFFIX
             print(f"generating: step{n}/{world} ...")
             img = client.images.generate(
                 model="muse-image-1.0",
@@ -210,18 +220,28 @@ def get_images(client, pack, refresh=False, only_world=None, only_step=None,
             data = img.data[0]
             os.makedirs(d, exist_ok=True)
             img_path, saved = save_image_data(
-                data, os.path.join(d, "image.webp"))
-            with open(os.path.join(d, "prompt.txt"), "w",
+                data, os.path.join(d, name))
+            prompt_name = ("prompt.txt" if variant == "normal"
+                           else "prompt_simpler.txt")
+            with open(os.path.join(d, prompt_name), "w",
                       encoding="utf-8") as f:
                 f.write(prompt)
-            meta = {"model": "muse-image-1.0", "size": "1024x1024",
-                    "saved_from": saved["saved_from"],
-                    "format": saved["format"]}
+            meta_path = os.path.join(d, "meta.json")
+            meta = {}
+            if os.path.exists(meta_path):
+                with open(meta_path, encoding="utf-8") as f:
+                    meta = json.load(f)
+            entry = {"model": "muse-image-1.0", "size": "1024x1024",
+                     "saved_from": saved["saved_from"],
+                     "format": saved["format"], "image": name}
             revised = getattr(data, "revised_prompt", None)
             if revised:
-                meta["revised_prompt"] = revised
-            with open(os.path.join(d, "meta.json"), "w",
-                      encoding="utf-8") as f:
+                entry["revised_prompt"] = revised
+            if variant == "normal":
+                meta.update(entry)
+            else:
+                meta["simpler"] = entry
+            with open(meta_path, "w", encoding="utf-8") as f:
                 json.dump(meta, f, indent=2)
             print(f"wrote {img_path} "
                   f"({os.path.getsize(img_path)} bytes)")
@@ -234,13 +254,15 @@ def main(argv=None):
     ap.add_argument("--world", default=None, choices=WORLDS)
     ap.add_argument("--step", default=None, type=int, choices=[1, 2, 3, 4, 5])
     ap.add_argument("--no-images", action="store_true")
+    ap.add_argument("--variant", default="normal",
+                    choices=["normal", "simpler"])
     args = ap.parse_args(argv)
     client = OpenAI(base_url="https://api.meta.ai/v1",
                     api_key=os.environ["MODEL_API_KEY"])
     pack, _ = get_text_pack(client, refresh=args.refresh_text)
     get_images(client, pack, refresh=args.refresh_images,
                only_world=args.world, only_step=args.step,
-               no_images=args.no_images)
+               no_images=args.no_images, variant=args.variant)
     print("done.")
 
 

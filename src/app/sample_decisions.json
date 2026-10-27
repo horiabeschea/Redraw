@@ -1,0 +1,32 @@
+[
+  {
+    "signal": "stuck",
+    "strategy": "simplify_language",
+    "target_concept": "evaporation",
+    "reason": "The child is stuck, so the caption gets shorter before anything else changes."
+  },
+  {
+    "signal": "stuck",
+    "strategy": "redraw_simpler",
+    "target_concept": "condensation",
+    "reason": "Words alone did not work, so the scene is swapped for its simpler variant."
+  },
+  {
+    "signal": "bored",
+    "strategy": "raise_challenge",
+    "target_concept": "precipitation",
+    "reason": "The child is bored, so the next check asks for more, not less."
+  },
+  {
+    "signal": "bored",
+    "strategy": "switch_to_tap_game",
+    "target_concept": "water vapor rises",
+    "reason": "The child is bored, so the lesson becomes a tap game instead of repeating itself."
+  },
+  {
+    "signal": "got_it",
+    "strategy": "advance",
+    "target_concept": "collection",
+    "reason": "The child showed understanding, so the lesson moves to the next step."
+  }
+]

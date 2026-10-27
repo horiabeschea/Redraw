@@ -3,21 +3,21 @@
   "steps": [
     {
       "analogies": {
-        "block_world": "The sun heats the block lake. Lake water turns into invisible air.",
-        "dinosaur_valley": "The sun heats the lake by the ferns. Lake water turns into invisible air."
+        "block_world": "Sun warms the block lake. Water turns into invisible air.",
+        "dinosaur_valley": "Sun warms the valley lake. Water turns into invisible air."
       },
-      "caption": "The sun heats the lake. Lake water turns into invisible air. This is evaporation: water turning into invisible air.",
-      "correction": "The sun heats water, it does not pull it.",
+      "caption": "The sun heats the lake. Heat turns water into invisible air. This invisible air is water vapor. This is evaporation: water turning into invisible air.",
+      "correction": "The sun warms water, it does not suck.",
       "image_prompts": {
-        "block_world": "Fixed layout: a block lake at the left, the sun at the top right, blocky hills at the back, and a river at the right. Blocky trees are small background details. Calm soft colours. No text, letters, numbers, labels or logos. No human faces. No scary elements, no fighting, and no dangerous weather. Change for this step: make the lake large, separate from other objects, and unobstructed, with clear air above it and no visible steam.",
-        "dinosaur_valley": "Fixed layout: a lake at the left, the sun at the top right, hills and distant volcanoes at the back, and a river at the right. Ferns and small friendly plant-eating dinosaurs are small background details. Calm soft colours. No text, letters, numbers, labels or logos. No human faces. No scary elements, no predators, no fighting, and no dangerous weather. Change for this step: make the lake large, separate from other objects, and unobstructed, with clear air above it and no visible steam."
+        "block_world": "Same fixed scene: large lake at left, large sun at top right, blocky hills at the back, river at the right, square clouds above, blocky trees, calm soft colours, no scary elements, no predators, no fighting, no dangerous weather, no text, letters, numbers, labels or logos, no human faces, creatures only as small friendly background details. Change only: warm light from the sun shines on the large lake.",
+        "dinosaur_valley": "Same fixed scene: large lake at left, large sun at top right, hills and volcanoes at the back, river at the right, ferns, calm soft colours, no scary elements, no predators, no fighting, no dangerous weather, no text, letters, numbers, labels or logos, no human faces, small friendly plant-eating dinosaurs only as small background details. Change only: warm light from the sun shines on the large lake."
       },
       "misconception": "the sun \"sucks up\" water",
       "say_it": {
-        "answer_key": ": The sun heats the lake water",
-        "prompt": "Tell me what happens here. Use your own words."
+        "answer_key": ":",
+        "prompt": "Use your words. Tell how the sun heats lake water."
       },
-      "simpler_caption": "Sun heats the lake. Water turns into invisible air.",
+      "simpler_caption": "Sun heats lake. Water rises up.",
       "tap_question": {
         "prompt": "Tap the lake.",
         "target_noun": "lake"
@@ -27,21 +27,21 @@
     },
     {
       "analogies": {
-        "block_world": "Warm air rises above the block lake. It carries invisible air up.",
-        "dinosaur_valley": "Warm air rises above the lake. It carries invisible air up."
+        "block_world": "Warm air rises over the block lake. It carries invisible water air up.",
+        "dinosaur_valley": "Warm air rises over the valley lake. It carries invisible water air up."
       },
-      "caption": "Invisible warm air goes up. It carries water up with it. This invisible air is water vapor: invisible air from water.",
-      "correction": "Water vapor is invisible, unlike tiny drops you see.",
+      "caption": "Warm air goes up high. It carries invisible water air up. This is water vapor: invisible air from water.",
+      "correction": "You cannot see vapor, only tiny drops.",
       "image_prompts": {
-        "block_world": "Fixed layout: a block lake at the left, the sun at the top right, blocky hills at the back, and a river at the right. Blocky trees are small background details. Calm soft colours. No text, letters, numbers, labels or logos. No human faces. No scary elements, no fighting, and no dangerous weather. Change for this step: make the sun large, separate from other objects, and unobstructed, with clear invisible air above the block lake and no visible steam or smoke.",
-        "dinosaur_valley": "Fixed layout: a lake at the left, the sun at the top right, hills and distant volcanoes at the back, and a river at the right. Ferns and small friendly plant-eating dinosaurs are small background details. Calm soft colours. No text, letters, numbers, labels or logos. No human faces. No scary elements, no predators, no fighting, and no dangerous weather. Change for this step: make the sun large, separate from other objects, and unobstructed, with clear invisible air above the lake and no visible steam or smoke."
+        "block_world": "Same fixed scene: lake at left, large sun at top right, blocky hills at the back, river at the right, square clouds above, blocky trees, calm soft colours, no scary elements, no predators, no fighting, no dangerous weather, no text, letters, numbers, labels or logos, no human faces, creatures only as small friendly background details. Change only: keep the large sun clear and separate, with empty calm air above the lake and no visible steam.",
+        "dinosaur_valley": "Same fixed scene: lake at left, large sun at top right, hills and volcanoes at the back, river at the right, ferns, calm soft colours, no scary elements, no predators, no fighting, no dangerous weather, no text, letters, numbers, labels or logos, no human faces, small friendly plant-eating dinosaurs only as small background details. Change only: keep the large sun clear and separate, with empty calm air above the lake and no visible steam."
       },
       "misconception": "vapor is visible steam",
       "say_it": {
-        "answer_key": ": The rising air is warm",
-        "prompt": "Tell me what happens here. Use your own words."
+        "answer_key": ":",
+        "prompt": "Use your words. Tell where warm air goes."
       },
-      "simpler_caption": "Warm air goes up. Air carries water up.",
+      "simpler_caption": "Warm air rises. Air carries water up.",
       "tap_question": {
         "prompt": "Tap the sun.",
         "target_noun": "sun"
@@ -51,21 +51,21 @@
     },
     {
       "analogies": {
-        "block_world": "High above the blocky hills, air cools. Tiny drops gather as one square cloud.",
-        "dinosaur_valley": "High above the ferns, air cools. Tiny drops gather as a cloud."
+        "block_world": "High over block hills, invisible air cools. Tiny drops make a square cloud.",
+        "dinosaur_valley": "High over the hills, invisible air cools. Tiny drops make a cloud."
       },
-      "caption": "High up, the air is cool. Invisible air turns into tiny drops. Many tiny drops make a cloud. This is condensation: invisible air turning into tiny drops.",
-      "correction": "A cloud is many tiny water drops together.",
+      "caption": "High air is cool air. Invisible air turns into tiny drops. Many tiny drops make a cloud. This is condensation: vapor cooling into tiny drops.",
+      "correction": "Clouds are tiny water drops, not cotton.",
       "image_prompts": {
-        "block_world": "Fixed layout: a block lake at the left, the sun at the top right, blocky hills at the back, and a river at the right. Blocky trees are small background details. Calm soft colours. No text, letters, numbers, labels or logos. No human faces. No scary elements, no fighting, and no dangerous weather. Change for this step: add one large square cloud, separate from other objects and unobstructed, high in the sky and made of tiny soft drops.",
-        "dinosaur_valley": "Fixed layout: a lake at the left, the sun at the top right, hills and distant volcanoes at the back, and a river at the right. Ferns and small friendly plant-eating dinosaurs are small background details. Calm soft colours. No text, letters, numbers, labels or logos. No human faces. No scary elements, no predators, no fighting, and no dangerous weather. Change for this step: add one large cloud, separate from other objects and unobstructed, high in the sky and made of tiny soft drops."
+        "block_world": "Same fixed scene: lake at left, sun at top right, blocky hills at the back, river at the right, blocky trees, calm soft colours, no scary elements, no predators, no fighting, no dangerous weather, no text, letters, numbers, labels or logos, no human faces, creatures only as small friendly background details. Change only: add one large square cloud, separate and unobstructed, high in the middle sky, made of many tiny soft drops.",
+        "dinosaur_valley": "Same fixed scene: lake at left, sun at top right, hills and volcanoes at the back, river at the right, ferns, calm soft colours, no scary elements, no predators, no fighting, no dangerous weather, no text, letters, numbers, labels or logos, no human faces, small friendly plant-eating dinosaurs only as small background details. Change only: add one large cloud, separate and unobstructed, high in the middle sky, made of many tiny soft drops."
       },
       "misconception": "clouds are smoke or cotton",
       "say_it": {
-        "answer_key": ": Invisible air cools high up",
-        "prompt": "Tell me what happens here. Use your own words."
+        "answer_key": ":",
+        "prompt": "Use your words. Tell how a cloud forms."
       },
-      "simpler_caption": "Cool air makes tiny drops. Tiny drops make a cloud.",
+      "simpler_caption": "Tiny drops join. Drops make a cloud.",
       "tap_question": {
         "prompt": "Tap the cloud.",
         "target_noun": "cloud"
@@ -75,21 +75,21 @@
     },
     {
       "analogies": {
-        "block_world": "Over the blocky trees, drops grow heavy. Heavy drops fall as rain.",
-        "dinosaur_valley": "Over the ferns, drops grow heavy. Heavy drops fall as rain."
+        "block_world": "Drops join inside the square cloud. Heavy drops fall as gentle rain.",
+        "dinosaur_valley": "Drops join inside the valley cloud. Heavy drops fall as gentle rain."
       },
-      "caption": "Tiny drops bump and join together. Drops grow big and heavy. Heavy drops fall as rain. This is precipitation: heavy drops falling as rain.",
-      "correction": "Rain falls when drops grow too heavy to float.",
+      "caption": "Tiny drops bump together softly. Drops join into bigger heavy drops. Heavy drops fall as rain. This is precipitation: heavy drops falling as rain.",
+      "correction": "Rain falls when drops get too heavy.",
       "image_prompts": {
-        "block_world": "Fixed layout: a block lake at the left, the sun at the top right, blocky hills at the back, and a river at the right. Blocky trees are small background details. Calm soft colours. No text, letters, numbers, labels or logos. No human faces. No scary elements, no fighting, and no dangerous weather. Change for this step: show one large square cloud with large, separate, unobstructed and gentle rain falling from it.",
-        "dinosaur_valley": "Fixed layout: a lake at the left, the sun at the top right, hills and distant volcanoes at the back, and a river at the right. Ferns and small friendly plant-eating dinosaurs are small background details. Calm soft colours. No text, letters, numbers, labels or logos. No human faces. No scary elements, no predators, no fighting, and no dangerous weather. Change for this step: show one large cloud with large, separate, unobstructed and gentle rain falling from it."
+        "block_world": "Same fixed scene: lake at left, sun at top right, blocky hills at the back, river at the right, square cloud above, blocky trees, calm soft colours, no scary elements, no predators, no fighting, no dangerous weather, no text, letters, numbers, labels or logos, no human faces, creatures only as small friendly background details. Change only: show large gentle rain, separate and unobstructed, falling from under the cloud.",
+        "dinosaur_valley": "Same fixed scene: lake at left, sun at top right, hills and volcanoes at the back, river at the right, ferns, calm soft colours, no scary elements, no predators, no fighting, no dangerous weather, no text, letters, numbers, labels or logos, no human faces, small friendly plant-eating dinosaurs only as small background details. Change only: show large gentle rain, separate and unobstructed, falling from under the cloud."
       },
       "misconception": "rain comes from holes in the cloud",
       "say_it": {
-        "answer_key": ": Drops bump and join together",
-        "prompt": "Tell me what happens here. Use your own words."
+        "answer_key": ":",
+        "prompt": "Use your words. Tell why rain falls down."
       },
-      "simpler_caption": "Big drops make rain. Rain falls down.",
+      "simpler_caption": "Drops get big. Rain falls down.",
       "tap_question": {
         "prompt": "Tap the rain.",
         "target_noun": "rain"
@@ -99,21 +99,21 @@
     },
     {
       "analogies": {
-        "block_world": "Rain water runs into the block lake. Rain water also fills the river.",
-        "dinosaur_valley": "Rain water runs into the lake. Rain water also fills the river."
+        "block_world": "Rain runs into the block lake. Rain also fills the river.",
+        "dinosaur_valley": "Rain runs into the valley lake. Rain also fills the river."
       },
-      "caption": "Rain water runs into rivers. Rain water soaks into the ground. Water gathers in the lake again. This is collection: water gathering in one place. The sun heats it again.",
-      "correction": "Rain water gathers and the sun heats it again.",
+      "caption": "Rain water runs into rivers. Water gathers in big lakes. Water soaks into the ground. Sun heats water again soon. This is collection: water gathering in lakes.",
+      "correction": "Rain water gathers and starts again.",
       "image_prompts": {
-        "block_world": "Fixed layout: a block lake at the left, the sun at the top right, blocky hills at the back, and a river at the right. Blocky trees are small background details. Calm soft colours. No text, letters, numbers, labels or logos. No human faces. No scary elements, no fighting, and no dangerous weather. Change for this step: make the river large, separate from other objects, and unobstructed, filled with calm water leading toward the block lake.",
-        "dinosaur_valley": "Fixed layout: a lake at the left, the sun at the top right, hills and distant volcanoes at the back, and a river at the right. Ferns and small friendly plant-eating dinosaurs are small background details. Calm soft colours. No text, letters, numbers, labels or logos. No human faces. No scary elements, no predators, no fighting, and no dangerous weather. Change for this step: make the river large, separate from other objects, and unobstructed, filled with calm water leading toward the lake."
+        "block_world": "Same fixed scene: large lake at left, sun at top right, blocky hills at the back, large river at the right, square clouds above, blocky trees, calm soft colours, no scary elements, no predators, no fighting, no dangerous weather, no text, letters, numbers, labels or logos, no human faces, creatures only as small friendly background details. Change only: make the large river clear, separate and unobstructed, filled with calm water flowing toward the lake.",
+        "dinosaur_valley": "Same fixed scene: large lake at left, sun at top right, hills and volcanoes at the back, large river at the right, ferns, calm soft colours, no scary elements, no predators, no fighting, no dangerous weather, no text, letters, numbers, labels or logos, no human faces, small friendly plant-eating dinosaurs only as small background details. Change only: make the large river clear, separate and unobstructed, filled with calm water flowing toward the lake."
       },
       "misconception": "rain is made fresh in the cloud",
       "say_it": {
-        "answer_key": ": Water runs into rivers and lakes",
-        "prompt": "Tell me what happens here. Use your own words."
+        "answer_key": ":",
+        "prompt": "Use your words. Tell where rain water goes."
       },
-      "simpler_caption": "Rain fills the lake. Sun heats water again.",
+      "simpler_caption": "Water fills lake. Water fills river.",
       "tap_question": {
         "prompt": "Tap the river.",
         "target_noun": "river"

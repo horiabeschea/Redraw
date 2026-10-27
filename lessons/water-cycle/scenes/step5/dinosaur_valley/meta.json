@@ -2,5 +2,58 @@
   "model": "muse-image-1.0",
   "size": "1024x1024",
   "saved_from": "b64_json",
-  "format": "webp"
+  "format": "webp",
+  "masks": {
+    "river": {
+      "source": "sam-3.1",
+      "matches": 1,
+      "object_id": "0",
+      "mask_png": "mask_river.png",
+      "raster": [
+        686,
+        1024
+      ],
+      "image": [
+        1600,
+        1600
+      ],
+      "box": {
+        "left": 0,
+        "top": 528,
+        "right": 1600,
+        "bottom": 1600
+      },
+      "coverage": 0.4560233691690962
+    }
+  },
+  "simpler": {
+    "model": "muse-image-1.0",
+    "size": "1024x1024",
+    "saved_from": "b64_json",
+    "format": "webp",
+    "image": "simpler.webp"
+  },
+  "masks_simpler": {
+    "river": {
+      "source": "sam-3.1",
+      "matches": 1,
+      "object_id": "0",
+      "mask_png": "simpler_mask_river.png",
+      "raster": [
+        808,
+        1024
+      ],
+      "image": [
+        1600,
+        1600
+      ],
+      "box": {
+        "left": 0,
+        "top": 383,
+        "right": 1543,
+        "bottom": 1600
+      },
+      "coverage": 0.35046628442141087
+    }
+  }
 }

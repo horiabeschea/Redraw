@@ -22,3 +22,9 @@
 - [x] Create an implementation plan
 
 # 27.10.2026 - MVP implementation phase
+
+- [x] Restore pack cache; add `AdaptationDecision`/`LearnerState` contracts with checker
+- [x] Verifier pass: fixed "invisible air" analogies (steps 1-3), hand-wrote say-it answer keys
+- [x] Vendored official SAM mask decoder; segmented 10 scenes (10 SAM calls + 5 concept retries)
+- [x] Hand boxes for 5 SAM-zero scenes (D9 fallback); all 20 hotspots done (10 normal + 10 simpler)
+- [x] Generated 10 simpler scene variants; golden set complete (20 images, cached, replayable offline)

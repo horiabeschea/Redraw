@@ -42,7 +42,7 @@ flowchart LR
 | Component | Responsibility | Model / tech |
 | --- | --- | --- |
 | **Lesson screen** | Shows the scene, caption, progress, three signal buttons ("I don't get it", "Boring!", "Show me"), hotspot overlay, and read-aloud (browser speech synthesis). | Web front end |
-| **API proxy** | Holds the API key, relays requests, proxies the transcription WebSocket. The key is never sent to the browser. | Small server (Python or Node), OpenAI SDK pointed at `https://api.meta.ai/v1` |
+| **API proxy** | Holds the API key, relays requests, proxies the transcription WebSocket. The key is never sent to the browser. | FastAPI on Modal (free tier), OpenAI SDK pointed at `https://api.meta.ai/v1` |
 | **Speech input** | Turns the child's speech into text with keyword biasing (lesson and interest words), endpointing, and speaker labels so a parent's hint is not scored as the child's answer. | Muse Voice Transcribe (`muse-voice-transcribe-1.0`) |
 | **Signal interpreter** | Maps a button press or spoken phrase to one of: `stuck`, `bored`, `got_it`. | Rules first, model fallback (Muse Spark; open-weight in private mode) |
 | **Adaptation policy** | Chooses the next teaching strategy. Returns a typed `AdaptationDecision`: `{signal, strategy, target_concept, reason}`. | Muse Spark 1.3 (`muse-spark-1.3`)
@@ -60,14 +60,14 @@ flowchart LR
 ## Meta models we plan to use
 
 1. Lesson pack, plus the accuracy check on it **muse-wonder-1.0** reasoning: {effort: "medium"}, structured output. Run once, cache the result. Use it for the verifier pass too.
-2. Opening scene and step-by-step edits **muse-image-1.0** Responses API for multi-turn edits, chaining with previous_response_id. reasoning_strength: "high" for the opening scene, "low" for redraws. Turn off enable_image_search so it can’t pull brand references.
-3. Tappable parts **sam-3.1* One request per noun (“lake”, “cloud”), over the Responses API.
+2. Opening scene and step-by-step edits **muse-image-1.0** Independent generations per step and world form the golden set (multi-turn edits are stretch). No brand references anywhere in prompts.
+3. Tappable parts **sam-3.1** One request per noun (“lake”, “cloud”), over the Responses API.
 4. Tap grading **none** Plain geometry (point-in-mask), no model.
 5. Adaptation policy **muse-spark-1.3** Structured output, reasoning: {effort: "low"} on live turns. Add a rule-based fallback.
 6. Caption rewrite **muse-spark-1.3** Same model, "minimal" or "low" effort for speed.
 7. Voice **muse-voice-transcribe-1.0** Realtime WebSocket wss://api.meta.ai/v1/asr/realtime for live speech, with keyword biasing. File endpoint for your test recordings.
 8. Say-it grading **muse-spark-1.3** Structured output with a verdict, hint and short kind explanation.
-9. Private mode (stretch) **meta-models/muse-spark-open-1026** on Baseten if we get the credits. Run the signal interpreter and say-it grading here. For Modal or local, serve **Muse-Spark-Open-816B-A42B** (NVFP4 weights) or **Muse Glimmer**. Not sure if the GPU fits
+9. Private mode (stretch) **meta-models/muse-spark-open-1026** on Baseten or Modal if credits land by Nov 1. Run the signal interpreter and say-it grading here. Local open weights are out (dev machine is Apple M1, no NVIDIA GPU).
 
 ## Runtime flow
 
@@ -106,8 +106,8 @@ Planned to use **Muse Code** for development, have to check usage conditions and
 
 | Piece | Status |
 | --- | --- |
-| Lesson pack (water cycle) | x |
-| Scene pipeline + golden set | |
+| Lesson pack (water cycle) | x (5 steps, cached, schema-validated) |
+| Scene pipeline + golden set | x (20 scenes; 10 SAM masks + 10 hand boxes) |
 | Lesson screen | |
 | Tap grading | |
 | Adaptation policy + replay tests | |

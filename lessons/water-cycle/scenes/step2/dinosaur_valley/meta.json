@@ -2,5 +2,58 @@
   "model": "muse-image-1.0",
   "size": "1024x1024",
   "saved_from": "b64_json",
-  "format": "webp"
+  "format": "webp",
+  "masks": {
+    "sun": {
+      "source": "sam-3.1",
+      "matches": 1,
+      "object_id": "0",
+      "mask_png": "mask_sun.png",
+      "raster": [
+        386,
+        389
+      ],
+      "image": [
+        1600,
+        1600
+      ],
+      "box": {
+        "left": 961,
+        "top": 113,
+        "right": 1350,
+        "bottom": 499
+      },
+      "coverage": 0.7849341342887969
+    }
+  },
+  "simpler": {
+    "model": "muse-image-1.0",
+    "size": "1024x1024",
+    "saved_from": "b64_json",
+    "format": "webp",
+    "image": "simpler.webp"
+  },
+  "masks_simpler": {
+    "sun": {
+      "source": "sam-3.1",
+      "matches": 1,
+      "object_id": "0",
+      "mask_png": "simpler_mask_sun.png",
+      "raster": [
+        434,
+        434
+      ],
+      "image": [
+        1600,
+        1600
+      ],
+      "box": {
+        "left": 967,
+        "top": 67,
+        "right": 1401,
+        "bottom": 501
+      },
+      "coverage": 0.78674955934507
+    }
+  }
 }

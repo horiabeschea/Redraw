@@ -2,5 +2,48 @@
   "model": "muse-image-1.0",
   "size": "1024x1024",
   "saved_from": "b64_json",
-  "format": "webp"
+  "format": "webp",
+  "masks": {
+    "cloud": {
+      "source": "hand-box",
+      "matches": null,
+      "mask_png": null,
+      "box": {
+        "left": 390,
+        "top": 140,
+        "right": 1050,
+        "bottom": 700
+      },
+      "image": [
+        1600,
+        1600
+      ],
+      "note": "SAM concept detection returned zero matches; box drawn from scene inspection (D9 fallback)."
+    }
+  },
+  "simpler": {
+    "model": "muse-image-1.0",
+    "size": "1024x1024",
+    "saved_from": "b64_json",
+    "format": "webp",
+    "image": "simpler.webp"
+  },
+  "masks_simpler": {
+    "cloud": {
+      "source": "hand-box",
+      "matches": null,
+      "mask_png": null,
+      "box": {
+        "left": 450,
+        "top": 160,
+        "right": 1050,
+        "bottom": 660
+      },
+      "image": [
+        1600,
+        1600
+      ],
+      "note": "SAM concept detection returned zero matches on the simpler variant; box drawn from scene inspection (D9 fallback)."
+    }
+  }
 }
