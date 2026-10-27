@@ -28,3 +28,6 @@
 - [x] Vendored official SAM mask decoder; segmented 10 scenes (10 SAM calls + 5 concept retries)
 - [x] Hand boxes for 5 SAM-zero scenes (D9 fallback); all 20 hotspots done (10 normal + 10 simpler)
 - [x] Generated 10 simpler scene variants; golden set complete (20 images, cached, replayable offline)
+- [x] Lesson screen + tap grading (geometry, 20/20) + policy replay (20/20 live) + live wiring with latency log
+- [x] Voice file endpoint + mapping tests (10/10); say-it grading wired with proof (47/50, never "wrong")
+- [x] Verifier pass 2 + adjudication record; full suite re-verified offline with zero API calls

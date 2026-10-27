@@ -108,13 +108,13 @@ Planned to use **Muse Code** for development, have to check usage conditions and
 | --- | --- |
 | Lesson pack (water cycle) | x (5 steps, cached, schema-validated) |
 | Scene pipeline + golden set | x (20 scenes; 10 SAM masks + 10 hand boxes) |
-| Lesson screen | |
-| Tap grading | |
-| Adaptation policy + replay tests | |
-| Live adaptation | |
-| Voice input | |
-| "Why it changed" panel | |
-| Say-it check | |
+| Lesson screen | x (static page, golden set, local signals) |
+| Tap grading | x (geometry only, 20 hotspots tested) |
+| Adaptation policy + replay tests | x (20/20 live, cached) |
+| Live adaptation | x (server endpoint + page wired, optimistic fallback; latency: ~6.5s live, ~0ms cached) |
+| Voice input | partial (file endpoint + mapping 10/10; live mic test + realtime WS pending) |
+| "Why it changed" panel | x (timeline renders every decision + latency) |
+| Say-it check | x (Spark grading wired; proof 47/50, never "wrong") |
 | Private mode (open weights) | |
 
 ## Spec decisions (Final)

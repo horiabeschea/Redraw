@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Redraw — Water Cycle</title>
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<main id="app">
+  <header>
+    <h1>Water Cycle</h1>
+    <div class="row">
+      <div id="worlds" role="group" aria-label="World"></div>
+      <button id="calm" aria-pressed="false">Calm mode</button>
+    </div>
+  </header>
+
+  <ol id="dots" aria-label="Progress"></ol>
+
+  <figure id="stage">
+    <img id="scene" alt="Lesson scene">
+    <canvas id="overlay"></canvas>
+  </figure>
+
+  <p id="caption"></p>
+  <div class="row">
+    <button id="read">Read aloud</button>
+    <button id="prev">Back</button>
+    <button id="next">Next</button>
+  </div>
+
+  <section id="signals" aria-label="Tell the lesson how you feel">
+    <button data-signal="stuck">I don't get it</button>
+    <button data-signal="bored">Boring!</button>
+    <button data-signal="got_it">Show me</button>
+    <button id="mic">Hold to talk</button>
+    <p id="heard" aria-live="polite"></p>
+  </section>
+
+  <section id="check" aria-label="Check understanding">
+    <button id="tapmode">Tap where…</button>
+    <p id="tapq"></p>
+    <p id="verdict" aria-live="polite"></p>
+    <p id="sayitq"></p>
+    <textarea id="sayit" rows="2" placeholder="Say it in your words…"></textarea>
+    <button id="saysave">Save answer</button>
+  </section>
+
+  <section id="why" aria-label="Why it changed">
+    <h2>Why it changed</h2>
+    <ol id="timeline"></ol>
+  </section>
+</main>
+<script src="/app.js"></script>
+</body>
+</html>

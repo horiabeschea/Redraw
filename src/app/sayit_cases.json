@@ -1,0 +1,252 @@
+[
+  {
+    "step": 1,
+    "answer": "The sun heats the lake and the water becomes vapor you cannot see, that is evaporation.",
+    "expected": "ok"
+  },
+  {
+    "step": 1,
+    "answer": "Sun warms the water, it turns into invisible vapor.",
+    "expected": "ok"
+  },
+  {
+    "step": 1,
+    "answer": "Lake water goes up as vapor because the sun heats it. Evaporation!",
+    "expected": "ok"
+  },
+  {
+    "step": 1,
+    "answer": "The hot sun makes water turn into air we can't see.",
+    "expected": "ok"
+  },
+  {
+    "step": 1,
+    "answer": "The sun warms the water and it rises up invisibly. That's evaporation.",
+    "expected": "ok"
+  },
+  {
+    "step": 1,
+    "answer": "The sun sucks up the water.",
+    "expected": "not_yet"
+  },
+  {
+    "step": 1,
+    "answer": "The water disappears.",
+    "expected": "not_yet"
+  },
+  {
+    "step": 1,
+    "answer": "The lake is blue.",
+    "expected": "not_yet"
+  },
+  {
+    "step": 1,
+    "answer": "The sun takes the water.",
+    "expected": "not_yet"
+  },
+  {
+    "step": 1,
+    "answer": "Clouds drink the lake.",
+    "expected": "not_yet"
+  },
+  {
+    "step": 2,
+    "answer": "Warm air goes up and carries the vapor with it, and we can't see it.",
+    "expected": "ok"
+  },
+  {
+    "step": 2,
+    "answer": "The warm air rises carrying invisible water vapor.",
+    "expected": "ok"
+  },
+  {
+    "step": 2,
+    "answer": "Air goes high and takes vapor along. Vapor is unseen.",
+    "expected": "ok"
+  },
+  {
+    "step": 2,
+    "answer": "Heat makes air rise, the vapor rides up invisibly.",
+    "expected": "ok"
+  },
+  {
+    "step": 2,
+    "answer": "Up goes warm air with water vapor you cannot see.",
+    "expected": "ok"
+  },
+  {
+    "step": 2,
+    "answer": "You can see the steam going up.",
+    "expected": "not_yet"
+  },
+  {
+    "step": 2,
+    "answer": "Air goes up.",
+    "expected": "not_yet"
+  },
+  {
+    "step": 2,
+    "answer": "The sun pushes clouds up.",
+    "expected": "not_yet"
+  },
+  {
+    "step": 2,
+    "answer": "Wind blows the lake away.",
+    "expected": "not_yet"
+  },
+  {
+    "step": 2,
+    "answer": "Water flies up like birds.",
+    "expected": "not_yet"
+  },
+  {
+    "step": 3,
+    "answer": "Up high it is cold so vapor cools into tiny drops that make a cloud.",
+    "expected": "ok"
+  },
+  {
+    "step": 3,
+    "answer": "Cool air turns vapor into little drops, lots of drops is a cloud.",
+    "expected": "ok"
+  },
+  {
+    "step": 3,
+    "answer": "The vapor gets cold and becomes droplets forming a cloud.",
+    "expected": "ok"
+  },
+  {
+    "step": 3,
+    "answer": "High up, tiny drops join and that is a cloud. Condensation.",
+    "expected": "ok"
+  },
+  {
+    "step": 3,
+    "answer": "Cold makes the vapor turn to water drops called a cloud.",
+    "expected": "ok"
+  },
+  {
+    "step": 3,
+    "answer": "Clouds are made of cotton.",
+    "expected": "not_yet"
+  },
+  {
+    "step": 3,
+    "answer": "Clouds are smoke from volcanoes.",
+    "expected": "not_yet"
+  },
+  {
+    "step": 3,
+    "answer": "A cloud appears.",
+    "expected": "not_yet"
+  },
+  {
+    "step": 3,
+    "answer": "The sky gets dark.",
+    "expected": "not_yet"
+  },
+  {
+    "step": 3,
+    "answer": "Air freezes into ice cubes.",
+    "expected": "not_yet"
+  },
+  {
+    "step": 4,
+    "answer": "Drops bump into each other, get heavy, and fall down as rain.",
+    "expected": "ok"
+  },
+  {
+    "step": 4,
+    "answer": "Little drops join together until heavy, then rain falls. Precipitation.",
+    "expected": "ok"
+  },
+  {
+    "step": 4,
+    "answer": "When drops grow big and heavy they drop as rain.",
+    "expected": "ok"
+  },
+  {
+    "step": 4,
+    "answer": "The cloud drops get too heavy to float so it rains.",
+    "expected": "ok"
+  },
+  {
+    "step": 4,
+    "answer": "Rain is heavy drops falling because they joined up.",
+    "expected": "ok"
+  },
+  {
+    "step": 4,
+    "answer": "Rain comes from holes in the cloud.",
+    "expected": "not_yet"
+  },
+  {
+    "step": 4,
+    "answer": "Rain falls.",
+    "expected": "not_yet"
+  },
+  {
+    "step": 4,
+    "answer": "The cloud cries.",
+    "expected": "not_yet"
+  },
+  {
+    "step": 4,
+    "answer": "Water pours from the sky bucket.",
+    "expected": "not_yet"
+  },
+  {
+    "step": 4,
+    "answer": "Snow melts into rain.",
+    "expected": "not_yet"
+  },
+  {
+    "step": 5,
+    "answer": "Rain runs into rivers and lakes, soaks in the ground, and the sun heats it again.",
+    "expected": "ok"
+  },
+  {
+    "step": 5,
+    "answer": "Water gathers in lakes and rivers and underground, then the sun heats it again.",
+    "expected": "ok"
+  },
+  {
+    "step": 5,
+    "answer": "The rain fills the river and lake, some goes in the ground. Collection.",
+    "expected": "ok"
+  },
+  {
+    "step": 5,
+    "answer": "Water collects in rivers, lakes and soil, then the sun heats it for the next round.",
+    "expected": "ok"
+  },
+  {
+    "step": 5,
+    "answer": "Rainwater flows into rivers and lakes and into the ground, and the sun warms it again.",
+    "expected": "ok"
+  },
+  {
+    "step": 5,
+    "answer": "Rain is made fresh in the cloud.",
+    "expected": "not_yet"
+  },
+  {
+    "step": 5,
+    "answer": "Water goes to the river.",
+    "expected": "not_yet"
+  },
+  {
+    "step": 5,
+    "answer": "The lake drinks the rain.",
+    "expected": "not_yet"
+  },
+  {
+    "step": 5,
+    "answer": "Water stays in the sea forever.",
+    "expected": "not_yet"
+  },
+  {
+    "step": 5,
+    "answer": "Puddles dry and vanish.",
+    "expected": "not_yet"
+  }
+]
