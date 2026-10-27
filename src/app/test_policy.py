@@ -71,6 +71,9 @@ GAP_ROWS = [
     ("EXPLORE", "bored", "CHALLENGE", ["raise_challenge"]),
     ("EXPLORE", "explore", "EXPLORE", ["switch_to_tap_game"]),
     ("CHALLENGE", "ready", "TAP_CHECK", None),
+    ("CHALLENGE", "say_ok", "ADVANCE", None),
+    ("CHALLENGE", "say_partial", "CHALLENGE", None),
+    ("CHALLENGE", "say_partial_limit", "ADVANCE", None),
 ]
 
 COUNT = [0]

@@ -1,9 +1,12 @@
 """Say-it grading: Muse Spark 1.3 against the step answer key.
 
-grade(client, answer, answer_key, cache_dir=None, refresh=False) returns
-{verdict: "ok"|"not_yet", hint, explanation}. The model never says "wrong":
-partial answers get "not_yet" plus a kind hint. On any failure (or client
-None) a deterministic keyword-overlap fallback answers instead.
+grade(client, answer, answer_key, cache_dir=None, refresh=False,
+model=None, history=None) returns {verdict: "ok"|"not_yet", hint,
+explanation}. history lists earlier attempts in the same check; the model
+grades everything said so far, so a completed partial passes. The model
+never says "wrong": partial answers get "not_yet" plus a kind hint. On any
+failure (or client None) a deterministic keyword-overlap fallback answers
+instead (single-answer only).
 
 Cache rule (credit safety): one file per answer hash. Proof reruns are free.
 """
@@ -46,11 +49,14 @@ def rule_fallback(answer, answer_key):
 
 
 def grade(client, answer, answer_key, misconception=None, cache_dir=None,
-          refresh=False, model=None):
+          refresh=False, model=None, history=None):
     model = model or "muse-spark-1.3"
+    history = [(h if isinstance(h, str) else h.get("answer", ""))
+               for h in (history or [])]
+    history = [h for h in history if h][-4:]
     digest = hashlib.sha256(
-        json.dumps({"v": 3, "a": answer, "k": answer_key, "m": misconception,
-                    "model": model},
+        json.dumps({"v": 4, "a": answer, "k": answer_key, "m": misconception,
+                    "h": history, "model": model},
                    sort_keys=True).encode()).hexdigest()[:16]
     cache_path = (os.path.join(cache_dir, f"sayit_{digest}.json")
                   if cache_dir else None)
@@ -64,16 +70,23 @@ def grade(client, answer, answer_key, misconception=None, cache_dir=None,
         veto = (f"Children often believe this lie: '{misconception}'. "
                 f"Any answer stating it gets 'not_yet'." if misconception
                 else "")
+        prior = ""
+        if history:
+            prior = ("Earlier attempts in this same check - grade everything "
+                     "the child has said so far, not just the last line:\n" +
+                     "\n".join(f"- {h}" for h in history) + "\n")
         out, _ = create_structured(
             client, model,
             ("Grade a child's spoken answer against the answer key. "
-             "Verdict 'ok' ONLY if every required idea appears in any "
-             "words; a partial answer with one idea missing gets "
-             "'not_yet'. " + veto + " Never say 'wrong'. The "
+             "Verdict 'ok' if every required idea appears across all "
+             "attempts combined, in any words; if at least one required "
+             "idea is still missing everywhere, verdict 'not_yet'. " +
+             veto + " Never say 'wrong'. The "
              "explanation is a one-sentence note for the reviewer log and "
              "is never shown to the child; the hint is the only text the "
              "child sees: one kind question leading forward.\n"
-             f"Answer key: {answer_key}\nChild: {answer}"),
+             f"Answer key: {answer_key}\n{prior}Child's latest answer: "
+             f"{answer}"),
             SAYIT_SCHEMA, "sayit")
     except Exception:
         out = rule_fallback(answer, answer_key)

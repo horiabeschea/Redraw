@@ -188,7 +188,8 @@ class Handler(BaseHTTPRequestHandler):
                 out, from_cache = grade(
                     get_client(), body["answer"], s["say_it"]["answer_key"],
                     s["misconception"], CACHE_DIR,
-                    model=backend_models()["sayit_model"])
+                    model=backend_models()["sayit_model"],
+                    history=body.get("history"))
                 ms = int((time.monotonic() - t0) * 1000)
                 with open(LATENCY_LOG, "a", encoding="utf-8") as f:
                     f.write(json.dumps({"route": "sayit", "ms": ms,

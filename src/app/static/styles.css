@@ -147,6 +147,7 @@ a { text-decoration: none; }
   padding: 8px 16px; border-radius: 999px; font-size: 16px; font-weight: 800;
 }
 #verdict-bubble.ok { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-ink); }
+#verdict-bubble:not(.ok) { border-color: var(--target); }
 .jury-legend {
   position: absolute; left: 16px; bottom: 16px; padding: 8px 12px;
   border-radius: 12px; background: var(--jury); color: #fff;
@@ -185,13 +186,6 @@ a { text-decoration: none; }
 .signal small { font-size: 14px; font-weight: 600; color: var(--muted); }
 .signal[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
 .signal:disabled { opacity: .45; cursor: default; }
-#back.nudge {
-  transform: scale(1.08); border-color: var(--warm); opacity: 1;
-  animation: backpulse 1.2s ease-in-out infinite;
-}
-@keyframes backpulse {
-  50% { box-shadow: 0 0 0 8px rgba(246, 185, 74, 0.35); }
-}
 .signal[aria-pressed="true"] small { color: var(--accent-soft); }
 #mic {
   width: 150px; border-radius: 20px; border: 2px solid var(--accent);
@@ -225,6 +219,12 @@ a { text-decoration: none; }
  * so it is exempt from calm mode's animation kill. */
 body.calm #verdict-fill {
   transition: width var(--fill-ms, 2500ms) linear !important;
+}
+/* Waiting rings signal an in-flight reply, so they spin even in calm mode. */
+body.calm .signal.waiting::after,
+body.calm #mic.waiting::after,
+body.calm .spin {
+  animation: spin 0.9s linear infinite !important;
 }
 .spin {
   flex: none; width: 18px; height: 18px; border-radius: 50%;

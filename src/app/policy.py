@@ -113,6 +113,9 @@ GAP_FILLS = {
     ("EXPLORE", "explore"): {"to": "EXPLORE",
                              "allowed": ["switch_to_tap_game"]},
     ("CHALLENGE", "ready"): {"to": "TAP_CHECK", "allowed": None},
+    ("CHALLENGE", "say_ok"): {"to": "ADVANCE", "allowed": None},
+    ("CHALLENGE", "say_partial"): {"to": "CHALLENGE", "allowed": None},
+    ("CHALLENGE", "say_partial_limit"): {"to": "ADVANCE", "allowed": None},
 }
 TRANSITIONS.update(GAP_FILLS)
 

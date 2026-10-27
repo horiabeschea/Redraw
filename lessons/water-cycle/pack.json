@@ -14,7 +14,7 @@
       },
       "misconception": "the sun \"sucks up\" water",
       "say_it": {
-        "answer_key": ":",
+        "answer_key": "Must contain: the sun heats the lake water; heat turns water into invisible vapor; evaporation is water becoming vapor. Partial credit: mentions the sun heating or water rising. -> What does the heat turn the water into?",
         "prompt": "Use your words. Tell how the sun heats lake water."
       },
       "simpler_caption": "Sun heats lake. Water rises up.",
@@ -38,7 +38,7 @@
       },
       "misconception": "vapor is visible steam",
       "say_it": {
-        "answer_key": ":",
+        "answer_key": "Must contain: warm air goes up high; the air carries invisible water vapor up with it. Partial credit: mentions air going up. -> Where does the warm air carry the vapor?",
         "prompt": "Use your words. Tell where warm air goes."
       },
       "simpler_caption": "Warm air rises. Air carries water up.",
@@ -62,7 +62,7 @@
       },
       "misconception": "clouds are smoke or cotton",
       "say_it": {
-        "answer_key": ":",
+        "answer_key": "Must contain: high air is cool; vapor cools into tiny drops; many tiny drops make a cloud. Partial credit: mentions drops or a cloud forming. -> What do the tiny drops make together?",
         "prompt": "Use your words. Tell how a cloud forms."
       },
       "simpler_caption": "Tiny drops join. Drops make a cloud.",
@@ -86,7 +86,7 @@
       },
       "misconception": "rain comes from holes in the cloud",
       "say_it": {
-        "answer_key": ":",
+        "answer_key": "Must contain: drops bump and join into bigger drops; heavy drops fall as rain. Partial credit: mentions rain falling. -> Why do the drops fall down?",
         "prompt": "Use your words. Tell why rain falls down."
       },
       "simpler_caption": "Drops get big. Rain falls down.",
@@ -110,7 +110,7 @@
       },
       "misconception": "rain is made fresh in the cloud",
       "say_it": {
-        "answer_key": ":",
+        "answer_key": "Must contain: rain water runs into rivers and lakes; gathered water is heated by the sun again. Partial credit: mentions rivers or lakes. -> Where does the rain water gather?",
         "prompt": "Use your words. Tell where rain water goes."
       },
       "simpler_caption": "Water fills lake. Water fills river.",

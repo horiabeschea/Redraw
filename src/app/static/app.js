@@ -52,10 +52,10 @@ const state = { pack: null, step: 0, world: null, simple: false, simpleImg: fals
                 challenge: false, pressed: null, timeline: [], masks: {},
                 backend: "meta", sent: null, showAnalogy: false, _rk: "",
                 misses: 0, mastered: [],
-                fsm: "PRESENT", stuck: 0, bored: 0, sayTries: 0,
+                fsm: "PRESENT", stuck: 0, bored: 0, sayTries: 0, sayHistory: [],
                 adaptations: 0, cleanSteps: 0, endedLow: false,
                 sayMode: false, expReturn: null, prevWorld: null,
-                sessionPrimary: null, rotIdx: 0, expTaps: 0,
+                sessionPrimary: null, rotIdx: 0,
                 support: false, _busy: false, _lastSig: {}, _signaled: false,
                 _step: null, _rotKey: "" };
 
@@ -196,7 +196,8 @@ function resetStep() {
   state.simple = settings.level === "short";
   state.simpleImg = false; state.challenge = false; state.pressed = null;
   state.misses = 0; state.sent = null; state.showAnalogy = false;
-  state.stuck = 0; state.bored = 0; state.sayTries = 0; state.adaptations = 0;
+  state.stuck = 0; state.bored = 0; state.sayTries = 0; state.sayHistory = [];
+  state.adaptations = 0;
   state.sayMode = false; state.expReturn = null; state.support = false;
   // Carry-over: a step that ended low restarts simplified; otherwise standard.
   state.fsm = state.endedLow ? "SIMPLER" : "PRESENT";
@@ -272,10 +273,8 @@ async function render() {
     ? s.say_it.prompt : s.tap_question.prompt;
   $("prompt-pill").classList.toggle("hidden",
     !PROMPT_STATES.includes(state.fsm));
-  // Got-it and Back never leave the bar; they disable when inactive.
+  // Got-it never leaves the bar; it disables when inactive.
   $("gotit").disabled = !(TEACHING.includes(state.fsm) && state.sent == null);
-  $("back").disabled = state.fsm !== "EXPLORE";
-  if (state.fsm !== "EXPLORE") $("back").classList.remove("nudge");
   // A verdict set before render survives it; otherwise clear the old one.
   // The bar resets every render and only fills for a staged advance.
   $("verdict-bar").classList.add("hidden");
@@ -488,7 +487,9 @@ function tapPoint(e) {
           (e.clientY - r.top) / r.height * img.naturalHeight];
 }
 
-/* EXPLORE detour: free tapping, no grading, no counters. Names the part. */
+/* EXPLORE detour: the game runs until the child taps the target. Other
+ * parts are named kindly (no grading, no counters); a wrong tap gets the
+ * red-bordered "keep looking" line and play continues. */
 async function exploreTap(e) {
   const s = step();
   const [x, y] = tapPoint(e);
@@ -496,21 +497,46 @@ async function exploreTap(e) {
   try {
     meta = await (await fetch(
       `/assets/step${s.step}/${state.world}/meta.json`)).json();
-  } catch (err) { return showVerdict("Keep looking around.", true); }
+  } catch (err) { return showVerdict("Keep looking around.", false); }
   const variant = state.simpleImg ? "masks_simpler" : "masks";
-  for (const [noun, raw] of Object.entries((meta || {})[variant] || {})) {
+  const zone = (meta || {})[variant] || {};
+  const target = s.tap_question.target_noun;
+  if (zone[target]) {
+    const entry = { ...zone[target],
+      mask_png: zone[target].mask_dilated_png || zone[target].mask_png };
+    if (await inside(entry, s, x, y)) {
+      state.misses = 0;
+      if (!state.mastered.includes(s.step_name)) state.mastered.push(s.step_name);
+      const text = `Yes! That's the ${target}.`;
+      if (entry.mask_png) {
+        try { await glowHotspot(entry); }
+        catch (err) { pulseHotspot(entry); }
+      }
+      if (readOn()) speakText(text);
+      chime();
+      const origin = state.expReturn || "TAP_CHECK";
+      state.fsm = FSM_NEXT[`EXPLORE|back_to_${origin}`] || "TAP_CHECK";
+      state.sayMode = state.fsm === "SAY_CHECK";
+      state.expReturn = null;
+      state._verdict = { text, ok: true };
+      log("tap", `Found the ${target} in the detour`,
+        "Correct tap ends EXPLORE; counters unchanged.",
+        `tap_correct → back_to_${origin}`, "SAM 3.1");
+      render();
+      return;
+    }
+  }
+  for (const [noun, raw] of Object.entries(zone)) {
+    if (noun === target) continue;
     const entry = { ...raw, mask_png: raw.mask_dilated_png || raw.mask_png };
     if (await inside(entry, s, x, y)) {
       const text = `That's the ${noun}.`;
       showVerdict(text, true);
       if (readOn()) speakText(text);
-      // Soft nudge only: after 6 named taps the exit grows, never forces.
-      state.expTaps += 1;
-      if (state.expTaps === 6) $("back").classList.add("nudge");
       return;
     }
   }
-  showVerdict("Keep looking around.", true);
+  showVerdict("Keep looking around.", false);
 }
 
 async function onTap(e) {
@@ -546,6 +572,7 @@ async function onTap(e) {
     if (s.say_it && s.say_it.prompt) {
       state.fsm = "SAY_CHECK";
       state.sayMode = true;
+      state.sayHistory = [];
       log("tap", `Tapped the ${noun}: correct`, meaning,
         "tap_correct → SAY_CHECK", "SAM 3.1");
     } else {
@@ -574,6 +601,7 @@ async function onTap(e) {
       if (`${state.step}|${state.world}` === token) {
         state.fsm = "SAY_CHECK";
         state.sayMode = true;
+        state.sayHistory = [];
         render();
       }
     }, 1500);
@@ -623,6 +651,7 @@ function fireEvent(ev) {
     // Resolve through the table: back_to_<origin>, counters unchanged.
     const resolved = `back_to_${state.expReturn || "TAP_CHECK"}`;
     state.fsm = FSM_NEXT[`EXPLORE|${resolved}`] || "TAP_CHECK";
+    state.sayMode = state.fsm === "SAY_CHECK";
     state.expReturn = null;
     state._signaled = true;
     log("back", "Back to the lesson",
@@ -747,15 +776,12 @@ function applyStrategy(strategy, to, from) {
   if (strategy === "raise_challenge") {
     state.challenge = true;
     state.sayMode = false;
+    state.sayHistory = [];
   }
   if (strategy === "switch_to_tap_game") {
     state.challenge = false;
     state.sayMode = false;
-    if (state.fsm === "EXPLORE") {
-      state.expReturn = from;
-      state.expTaps = 0;
-      $("back").classList.remove("nudge");
-    }
+    if (state.fsm === "EXPLORE") state.expReturn = from;
   }
   // World rotation: SIMPLER and CHALLENGE cycle the selected worlds;
   // SIMPLEST always uses the primary world. Once per transition: the
@@ -780,31 +806,45 @@ async function gradeSayIt(answer, anchor) {
     const res = await fetch("/api/sayit", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ answer, step: step().step }),
+      body: JSON.stringify({ answer, step: step().step,
+                             history: state.sayHistory }),
     });
     const r = (await res.json()).result;
     setSparkWaiting(false, anchor);
+    state.sayHistory.push(answer);
     // The child sees only short confirmations and kind questions; the
     // explanation (answer-key reasoning) belongs to the jury log below.
     showVerdict(r.verdict === "ok" ? "Yes! Well said." : (r.hint || r.explanation),
       r.verdict === "ok");
     if (r.verdict === "ok") {
+      // A correct answer in the check — or meeting the challenge head-on —
+      // finishes the step. Anywhere else it is praise without moving on.
+      if (inCheck || state.fsm === "CHALLENGE") {
+        log("say_it", "Said it right", `${r.explanation}`.trim(),
+          inCheck ? "say_ok → ADVANCE" : "say_ok → ADVANCE (challenge met)",
+          policyModel());
+        praiseThenAdvance("Yes! Well said.", 2500);
+        return;
+      }
       log("say_it", "Said it right", `${r.explanation}`.trim(),
-        inCheck ? "say_ok → ADVANCE" : "say_it → ok", policyModel());
-      if (inCheck) { praiseThenAdvance("Yes! Well said.", 2500); return; }
+        "say_it → ok", policyModel());
       return;
     }
-    if (inCheck) {
+    // Tries count in the check and in the challenge alike: partial answers
+    // can never loop forever.
+    if (inCheck || state.fsm === "CHALLENGE") {
       state.sayTries += 1;
       if (state.sayTries >= 2) {
         log("say_it", "Moved on",
           `${r.explanation} ${r.hint}`.trim(),
-          "say_partial_limit → ADVANCE", policyModel());
+          inCheck ? "say_partial_limit → ADVANCE"
+                  : "say_partial_limit → ADVANCE (challenge)", policyModel());
         praiseThenAdvance(r.hint || r.explanation, 2500);
         return;
       }
       log("say_it", "Gave a hint", `${r.explanation} ${r.hint}`.trim(),
-        "say_partial → SAY_CHECK (one more try)", policyModel());
+        inCheck ? "say_partial → SAY_CHECK (one more try)"
+                : "say_partial → CHALLENGE (one more try)", policyModel());
       return;
     }
     log("say_it", "Gave a hint", `${r.explanation} ${r.hint}`.trim(),
