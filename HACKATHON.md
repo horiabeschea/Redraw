@@ -15,4 +15,6 @@
 
 - [x] Define architecture
 - [] Understand what Meta model fits where - read documentation, need practice with the models
-- [] Write a lesson
+- [x] Write a lesson
+- [x] Use **Meta wonder 1.0** to generate the first lesson outline and support media
+- [x] Use **Muse image 1.0** to generate first lesson helper images

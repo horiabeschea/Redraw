@@ -1,12 +1,11 @@
 """Build the water-cycle lesson pack with everything cached locally.
 
-Layout (repo root):
-  lessons/water-cycle.md            the brief (input)
-  lessons/.cache/wonder_pack_raw.json   FULL raw text API response (replay cache)
-  lessons/water-cycle.json          the parsed lesson pack (5 steps)
-  scenes/step<N>/<world>/image.png      generated scene
-  scenes/step<N>/<world>/prompt.txt     prompt that produced it
-  scenes/step<N>/<world>/meta.json      image API metadata (model, size, ...)
+Layout (everything lives under lessons/<topic>/):
+  lessons/water-cycle/brief.md              the brief (input)
+  lessons/water-cycle/template.md           parameterized brief template
+  lessons/water-cycle/pack.json             the parsed lesson pack (5 steps)
+  lessons/water-cycle/.cache/               FULL raw API responses (replay cache)
+  lessons/water-cycle/scenes/step<N>/<world>/image.webp + prompt.txt + meta.json
 
 Replay rule: if a cached/completed artifact exists it is reused and NO API
 call is made, so re-running this script costs nothing. Use --refresh-text /
@@ -29,10 +28,11 @@ from openai import OpenAI
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TOPIC = "water-cycle"
-BRIEF_PATH = os.path.join(ROOT, "lessons", "water-cycle.md")
-CACHE_TEXT_PATH = os.path.join(ROOT, "lessons", ".cache", "wonder_pack_raw.json")
-PACK_PATH = os.path.join(ROOT, "lessons", "water-cycle.json")
-SCENES_DIR = os.path.join(ROOT, "scenes")
+LESSON_DIR = os.path.join(ROOT, "lessons", TOPIC)
+BRIEF_PATH = os.path.join(LESSON_DIR, "brief.md")
+CACHE_TEXT_PATH = os.path.join(LESSON_DIR, ".cache", "wonder_pack_raw.json")
+PACK_PATH = os.path.join(LESSON_DIR, "pack.json")
+SCENES_DIR = os.path.join(LESSON_DIR, "scenes")
 
 STEP_NAMES = ["evaporation", "vapor_rises", "condensation",
               "precipitation", "collection"]

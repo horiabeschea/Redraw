@@ -49,13 +49,13 @@ flowchart LR
 
 ## Data contracts
 
-**Lesson pack** (`lessons/<topic>.json`), one object per step:
-`caption`, `simpler_caption`, `misconception`, `correction`, `analogies` (per interest world), `image_prompts` (per world), `tap_question {prompt, target_noun}`, `say_it {prompt, answer_key}`.
+**Lesson pack** (`lessons/<topic>/pack.json`), one object per step:
+`caption`, `simpler_caption`, `misconception`, `correction`, `analogies` (per interest world), `image_prompts` (per world), `tap_question {prompt, target_noun}`, `say_it {prompt, answer_key}`. Each topic folder also holds `brief.md`, `template.md`, `scenes/`, and `.cache/` with the full raw API responses for credit-free replay.
 
 **AdaptationDecision** (returned by the policy and rendered in the UI):
 `signal` (`stuck | bored | got_it`), `strategy` (for example `simplify_language`, `redraw_simpler`, `raise_challenge`, `advance`), `target_concept`, `reason` (one plain sentence).
 
-**Scene asset** (`scenes/<step>/<world>/`): the image, one mask per target noun, and the prompt that produced them.
+**Scene asset** (`lessons/<topic>/scenes/<step>/<world>/`): the image, one mask per target noun, and the prompt that produced them.
 
 ## Meta models we plan to use
 
@@ -106,7 +106,7 @@ Planned to use **Muse Code** for development, have to check usage conditions and
 
 | Piece | Status |
 | --- | --- |
-| Lesson pack (water cycle) | |
+| Lesson pack (water cycle) | x |
 | Scene pipeline + golden set | |
 | Lesson screen | |
 | Tap grading | |
