@@ -1,4 +1,4 @@
-# Start of hackathon
+# 26.10.2026 - Start of hackathon
 
 - [x] Claim the $150 Meta credits, add a card, set a spend-limit alert
 - [x] Create the public repo with a HACKATHON.md that logs what was built each day
@@ -10,3 +10,9 @@
     ```
 - [x] Make one real API call to muse-spark-1.3 from Romania
 - [x] Post in #intros with the one-line pitch - Decided not to atm
+
+# 27.10.2026 - MVP documentation phase 
+
+- [x] Define architecture
+- [] Understand what Meta model fits where - read documentation, need practice with the models
+- [] Write a lesson
