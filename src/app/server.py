@@ -1,8 +1,9 @@
 """Redraw lesson server (standard library only).
 
 Serves the lesson screen and the golden set offline:
-  /                     the lesson screen
-  /app.js, /styles.css  page assets
+  /                     the lesson screen (jury overlay + grown-ups gate)
+  /setup                parent setup (settings kept in browser localStorage)
+  /app.js, /setup.js, /styles.css  page assets
   /api/pack             lessons/water-cycle/pack.json
   /assets/<step>/<world>/<file>   scene files (image/simpler/mask/prompts)
 
@@ -29,7 +30,7 @@ from urllib.parse import urlparse
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from app.policy import decide
+from app.policy import decide, next_state_for
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.abspath(__file__))))
@@ -89,11 +90,33 @@ class Handler(BaseHTTPRequestHandler):
         url = urlparse(self.path)
         if url.path == "/":
             return self._send_file(os.path.join(STATIC_DIR, "index.html"))
-        if url.path in ("/app.js", "/styles.css"):
+        if url.path == "/setup":
+            return self._send_file(os.path.join(STATIC_DIR, "setup.html"))
+        if url.path in ("/app.js", "/setup.js", "/styles.css"):
             return self._send_file(_safe_join(
                 STATIC_DIR, url.path.lstrip("/")) or "")
         if url.path == "/api/pack":
             return self._send_file(os.path.join(LESSON_DIR, "pack.json"))
+        if url.path == "/api/captions":
+            try:
+                from app.captions import profile_for, rewrite_captions
+                from urllib.parse import parse_qs
+                q = parse_qs(urlparse(self.path).query)
+                level = q.get("level", ["medium"])[0]
+                terms = int(q.get("terms", ["1"])[0])
+                if level not in ("short", "medium", "longer"):
+                    raise ValueError("level must be short|medium|longer")
+                pack = json.load(open(os.path.join(LESSON_DIR, "pack.json"),
+                                      encoding="utf-8"))
+                profile = profile_for(level, terms)
+                out, hit = rewrite_captions(get_client(), pack, profile)
+                return self._send(200, json.dumps(
+                    {"captions": out["captions"], "cached": hit,
+                     "fallback": out.get("fallback", False)}),
+                    "application/json")
+            except Exception as e:
+                return self._send(400, json.dumps({"error": str(e)}),
+                                  "application/json")
         if url.path == "/api/backend":
             return self._send(200, json.dumps({"backend": BACKEND}),
                               "application/json")
@@ -182,16 +205,21 @@ class Handler(BaseHTTPRequestHandler):
             body = json.loads(self.rfile.read(
                 int(self.headers.get("Content-Length", 0))) or b"{}")
             t0 = time.monotonic()
+            fsm_state = (body.get("fsm") or {}).get("state", "PRESENT")
             decision, from_cache = decide(
                 get_client(), body["signal"], body["step"], body["learner"],
-                CACHE_DIR, model=backend_models()["policy_model"])
+                CACHE_DIR, model=backend_models()["policy_model"],
+                fsm_state=fsm_state)
             ms = int((time.monotonic() - t0) * 1000)
             with open(LATENCY_LOG, "a", encoding="utf-8") as f:
                 f.write(json.dumps({"route": "policy", "ms": ms,
                                     "cached": from_cache}) + "\n")
             return self._send(200, json.dumps({"decision": decision,
                                               "ms": ms,
-                                              "cached": from_cache}),
+                                              "cached": from_cache,
+                                              "fsm_state": fsm_state,
+                                              "next_state": next_state_for(
+                                                  fsm_state, body["signal"])}),
                               "application/json")
         except Exception as e:
             return self._send(400, json.dumps({"error": str(e)}),

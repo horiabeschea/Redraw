@@ -69,8 +69,10 @@ def grade(client, answer, answer_key, misconception=None, cache_dir=None,
             ("Grade a child's spoken answer against the answer key. "
              "Verdict 'ok' ONLY if every required idea appears in any "
              "words; a partial answer with one idea missing gets "
-             "'not_yet'. " + veto + " Never say 'wrong'; the hint is "
-             "one kind question leading forward.\n"
+             "'not_yet'. " + veto + " Never say 'wrong'. The "
+             "explanation is a one-sentence note for the reviewer log and "
+             "is never shown to the child; the hint is the only text the "
+             "child sees: one kind question leading forward.\n"
              f"Answer key: {answer_key}\nChild: {answer}"),
             SAYIT_SCHEMA, "sayit")
     except Exception:

@@ -24,9 +24,21 @@
     "reason": "The child is bored, so the lesson becomes a tap game instead of repeating itself."
   },
   {
-    "signal": "got_it",
+    "signal": "stuck",
+    "strategy": "simplify_max",
+    "target_concept": "condensation",
+    "reason": "Still stuck after a simpler scene, so one idea remains with picture and tap only."
+  },
+  {
+    "signal": "stuck",
+    "strategy": "offer_support",
+    "target_concept": "condensation",
+    "reason": "Three kinds of simpler did not land, so a grown-up is invited and the lesson moves on gently."
+  },
+  {
+    "signal": "explore",
     "strategy": "advance",
     "target_concept": "collection",
-    "reason": "The child showed understanding, so the lesson moves to the next step."
+    "reason": "The check is done and understood, so the lesson moves to the next step."
   }
 ]

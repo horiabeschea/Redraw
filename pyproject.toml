@@ -1,0 +1,16 @@
+[project]
+name = "redraw"
+version = "0.1.0"
+description = "Visual learning sandbox for kids who learn differently (hackathon MVP)."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    # OpenAI SDK pointed at https://api.meta.ai/v1 (see src/app/backends.py).
+    "openai>=3.39",
+    # Trust roots for the stdlib urllib calls (voice, image downloads);
+    # python.org macOS builds ship none.
+    "certifi>=2026.10.23",
+]
+
+[tool.uv]
+package = false

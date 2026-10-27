@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Redraw — Parent setup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<div class="setup">
+  <header class="topbar">
+    <div class="brand">
+      <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#16776D" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12a7 7 0 0 1 12-5"/><polyline points="17 3 17.5 7.5 13 7.5"/><path d="M19 12a7 7 0 0 1-12 5"/><polyline points="7 21 6.5 16.5 11 16.5"/></svg>
+      <span>Redraw</span>
+    </div>
+    <div class="row">
+      <span class="tag">GROWN-UPS ONLY</span>
+      <span class="lead">Parent setup · about 2 minutes · children never see this screen</span>
+    </div>
+  </header>
+
+  <main class="cols">
+    <div class="col">
+      <section class="card">
+        <div><h2>Who is learning?</h2><div class="sub">Used only to set the reading level. Stays on this device.</div></div>
+        <div>
+          <label class="field-label" for="childname">First name (optional)</label>
+          <input class="text" id="childname" type="text" placeholder="Used to say hello">
+        </div>
+        <div>
+          <div class="field-label">Age</div>
+          <div class="choices" id="ages" role="group" aria-label="Age"></div>
+        </div>
+        <div>
+          <div class="field-label" style="margin: 0">How long can a sentence be?</div>
+          <div class="hint">Tip: count the words in a sentence your child reads easily.</div>
+          <div class="choices" id="levels" role="group" aria-label="Sentence length"></div>
+        </div>
+        <div>
+          <div class="field-label">New science words per step</div>
+          <div class="choices" id="terms" role="group" aria-label="New words per step"></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div><h2>Their favourite worlds</h2><div class="sub">Pick up to three. Lessons get redrawn in these worlds.</div></div>
+        <div class="row" id="worlds" role="group" aria-label="Worlds" style="gap: 8px"></div>
+        <div class="hint" id="soonworlds"></div>
+        <div class="hint" id="ownnote" aria-live="polite"></div>
+        <div>
+          <label class="field-label" for="ownworld" style="font-size: 13px">Add your own</label>
+          <input class="text" id="ownworld" type="text" placeholder="For example: castles" style="height: 44px; font-size: 15px">
+        </div>
+        <div class="note-box">Worlds are described by style, like “blocky building world”. Game and film names are never sent.</div>
+      </section>
+    </div>
+
+    <div class="col">
+      <section class="card" style="gap: 10px">
+        <div><h2>Make it calm</h2><div class="sub">You can change these any time during a lesson.</div></div>
+        <div id="toggles"></div>
+      </section>
+
+      <section class="card">
+        <div><h2>Where it runs</h2><div class="sub">No account. No camera. Progress is saved on this device.</div></div>
+        <div id="modes" style="display: flex; flex-direction: column; gap: 12px"></div>
+      </section>
+    </div>
+
+    <div class="col">
+      <section class="card">
+        <h2>What your child will see</h2>
+        <div class="preview">
+          <svg viewBox="0 0 360 150" preserveAspectRatio="xMidYMid slice" role="img" aria-label="A small preview of a calm valley scene with a lake, a cloud and the sun">
+            <rect width="360" height="150" fill="#CFE8EE"/>
+            <circle cx="316" cy="30" r="16" fill="#F6B94A"/>
+            <path d="M0 100 Q90 70 180 98 T360 94 V150 H0Z" fill="#B7DBAA"/>
+            <path d="M0 116 Q120 104 240 118 T360 112 V150 H0Z" fill="#8FC27F"/>
+            <ellipse cx="86" cy="128" rx="70" ry="18" fill="#4FA3C7"/>
+            <g fill="#FFFFFF"><circle cx="150" cy="44" r="14"/><circle cx="168" cy="38" r="17"/><circle cx="188" cy="44" r="14"/><circle cx="170" cy="50" r="14"/></g>
+            <ellipse cx="86" cy="128" rx="74" ry="22" fill="none" stroke="#C9461F" stroke-width="2" stroke-dasharray="6 4"/>
+          </svg>
+        </div>
+        <div style="font-size: 12px; font-weight: 800; color: var(--muted)">Worlds: <span id="worldnames"></span></div>
+        <div id="sample"></div>
+        <div class="badge-note" id="samplenote"></div>
+      </section>
+
+      <section class="card" style="gap: 10px">
+        <h2>Lesson</h2>
+        <div class="lesson-row">The water cycle · 5 steps <span>Ready</span></div>
+        <div>
+          <label class="field-label" for="topic" style="font-size: 13px">Or build a new topic</label>
+          <div style="display: flex; gap: 8px">
+            <input class="text" id="topic" type="text" placeholder="For example: volcanoes" style="flex: 1; min-width: 0; font-size: 15px">
+            <button class="outline" disabled title="Lesson Builder is not wired yet">Build</button>
+          </div>
+        </div>
+        <div style="font-size: 12px; font-weight: 700; color: #3e4856">Muse Wonder writes the lesson once and a second pass checks the science. You read it before your child does.</div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>Made for kids who learn differently. The child steers with their voice, buttons and taps. Redraw does not watch faces or judge feelings.</p>
+    <a href="/" class="primary" id="start">Start the water-cycle lesson
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><polyline points="13 6 19 12 13 18"/></svg>
+    </a>
+  </footer>
+</div>
+<script src="/setup.js"></script>
+</body>
+</html>

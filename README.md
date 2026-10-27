@@ -6,6 +6,39 @@
 
 Built for the Meta Global AI Developer Hackathon (Oct 27 – Nov 4, 2026). Everything in this repository was written during the hackathon; see `HACKATHON.md` for the daily build log.
 
+## Setup and run
+
+Prerequisites: Python 3.10+ (developed on 3.12), [uv](https://docs.astral.sh/uv/), and API keys (below).
+
+```sh
+uv sync                                # creates .venv from uv.lock
+set -a; source .env; set +a            # load keys into the environment
+.venv/bin/python src/app/server.py      # serves http://127.0.0.1:8000/
+```
+
+Open the lesson at <http://127.0.0.1:8000/> and parent setup at <http://127.0.0.1:8000/setup>. Pass `--port` to change the port.
+
+Keys live in `.env` (gitignored, never committed):
+
+| Variable | Used for | Required? |
+| --- | --- | --- |
+| `MODEL_API_KEY` | Policy, captions, say-it grading, voice transcription | Only for live calls; without it the lesson runs offline on the cached golden set with rule fallbacks |
+| `BASETEN_API_KEY` | Private-mode open-weights backend | Only for Private mode |
+| `REDRAW_BACKEND` | `meta` (default) or `baseten` | No |
+
+Checks (from the repo root):
+
+```sh
+.venv/bin/python src/app/test_policy.py
+.venv/bin/python src/app/run_replay.py --fallback-only  # offline; drop the flag for live (credit-spending) turns
+.venv/bin/python src/app/check_contracts.py
+.venv/bin/python src/app/test_voice.py
+.venv/bin/python src/app/test_grading.py
+node --check src/app/static/app.js
+```
+
+macOS note: the system Python ships no TLS trust roots; `certifi` is a declared prerequisite so `uv sync` fixes HTTPS with no extra setup.
+
 ## Design principles
 
 - **The child steers.** The only inputs are what the child says, which button they press, and where they tap. There is no camera or voice-tone emotion detection. This complies with EU AI Act - running from Romania
@@ -41,7 +74,8 @@ flowchart LR
 
 | Component | Responsibility | Model / tech |
 | --- | --- | --- |
-| **Lesson screen** | Shows the scene, caption, progress, three signal buttons ("I don't get it", "Boring!", "Show me"), hotspot overlay, and read-aloud (browser speech synthesis). | Web front end |
+| **Lesson screen** (`/`) | Shows the scene (tap anywhere to answer the prompt pill), caption with "Read to me" (browser speech synthesis), step progress, world pills, Calm mode, three signal buttons ("I don't get it", "Boring!", "Show me") and a hold-to-talk "Say it" button (a signal phrase steers; anything else is graded as the say-it answer). A jury strip toggles between **Jury view** (dashed SAM tap target and the "Why it changed" panel) and **Child view** (picture, caption, buttons only). The lock icon opens a two-question grown-ups gate that links to parent setup. | Web front end (`src/app/static/`) |
+| **Parent setup** (`/setup`) | Age, sentence length, new words per step, favourite worlds (up to three), calm toggles (calm colours, no timers, large text, read aloud, reduce motion), Standard vs Private mode. Saved in browser `localStorage` (`redraw.settings`); only the mode is sent to the server. | Web front end |
 | **API proxy** | Holds the API key, relays requests, proxies the transcription WebSocket. The key is never sent to the browser. | FastAPI on Modal (free tier), OpenAI SDK pointed at `https://api.meta.ai/v1` |
 | **Speech input** | Turns the child's speech into text with keyword biasing (lesson and interest words), endpointing, and speaker labels so a parent's hint is not scored as the child's answer. | Muse Voice Transcribe (`muse-voice-transcribe-1.0`) |
 | **Signal interpreter** | Maps a button press or spoken phrase to one of: `stuck`, `bored`, `got_it`. | Rules first, model fallback (Muse Spark; open-weight in private mode) |
@@ -108,18 +142,29 @@ Planned to use **Muse Code** for development, have to check usage conditions and
 | --- | --- |
 | Lesson pack (water cycle) | x (5 steps, cached, schema-validated) |
 | Scene pipeline + golden set | x (20 scenes; 10 SAM masks + 10 hand boxes) |
-| Lesson screen | x (static page, golden set, local signals) |
+| Lesson screen | x (static page, golden set; jury/child view toggle, grown-ups gate) |
+| Parent setup | x (`/setup`, localStorage only; Lesson Builder "Build" button disabled) |
 | Tap grading | x (geometry only, 20 hotspots tested) |
 | Adaptation policy + replay tests | x (20/20 live, cached) |
 | Live adaptation | x (server endpoint + page wired, optimistic fallback; latency: ~6.5s live, ~0ms cached) |
 | Voice input | partial (file endpoint + mapping 10/10; live mic test + realtime WS pending) |
 | "Why it changed" panel | x (timeline renders every decision + latency) |
 | Say-it check | x (Spark grading wired; proof 47/50, never "wrong") |
-| Private mode (open weights) | x (Baseten connector; toggle in header; policy 8.3s, say-it 5.4s, strict schemas accepted) |
+| Private mode (open weights) | x (Baseten connector; toggle in parent setup; policy 8.3s, say-it 5.4s, strict schemas accepted) |
 
 ## Spec decisions (Final)
 
 Accepted by the owner. D1–D16 settled as written.
+
+Accepted by the owner alongside D1–D16. D17–D26 settled as written.
+
+Accepted by the owner alongside D1–D26. D27–D32 settled as written.
+- D27 (settled): parent setup gains "Large text" and "Read-aloud on/off" toggles; no timers and no accounts stay as-is (nothing to build).
+- D28 (settled): "smaller step" means sentence-by-sentence replay of the stuck step, one sentence per tap; generated sub-steps stay stretch.
+- D29 (settled): the step's world-analogy line appears under the caption when the child is stuck; new analogy scenes stay stretch.
+- D30 (settled): a correct tap explains with the step's world-analogy sentence instead of just naming the part; authored per-part explanations stay stretch.
+- D31 (settled): the why-timeline is collapsed in child view and always open in jury view.
+- D32 (settled): this iteration ships D27–D31 together with no new model calls; image-edit work stays out until its own go.
 
 - D1 (settled): settled spec/plan decisions are recorded here in `README.md`.
 - D2 (settled): solo build. No teammate; onboarding cost exceeds Demo gain with 9 days left.
@@ -141,3 +186,13 @@ Accepted by the owner. D1–D16 settled as written.
 - D14 (settled): stretch order is private mode (credits permitting) → Lesson Builder video one-shot → parent report. Brain-break and real-world bridge stay cut unless days remain.
 - D15 (settled): demo link is Modal + FastAPI (Python-native, free tier, credits already requested). Fallback is a Cloudflare Workers JS proxy. Requirement either way: outbound HTTPS to `api.meta.ai`, secret storage for the key, WebSocket proxying for Voice Transcribe.
 - D16 (settled): say-it proof is 5 correct + 5 wrong paraphrases per step (50 checks), not 10+10.
+- D17 (settled): unbuilt worlds (space, ocean, trains, robots) are greyed out with "soon"; custom-world text is parked as a saved wish until the Lesson Builder exists. Picking one must never silently show dinosaurs/blocks.
+- D18 (settled): sentence-length tiers are wired through the setup-time Spark caption rewrite (one call, code-checked, cached per lesson version + level + terms); the lesson screen overrides captions from it. New-words tiers are recorded in the profile and shown in setup; per-term budgeting stays future work.
+- D19 (settled): single private-mode control, in parent setup only. No header toggle on the lesson screen.
+- D20 (settled): grown-ups gate stays a two-question math quiz with retry; passing links to setup.
+- D21 (settled): lesson screen loads in child view by default; jury overlay is one click away.
+- D22 (settled): the "Say it" mic steers on signal phrases and grades anything else as the say-it answer; it replaces the old tap-mode button alongside the tap-anywhere prompt pill.
+- D23 (settled): content is layered, each layer depending on one preference and cached on its own — core (topic only, Wonder + verifier, committed), captions (level + word limit, Spark from core, local cache), analogies (world; Wonder for presets, Spark + checker for custom), images + masks (world only), live adaptation (signal only, never cached).
+- D24 (settled): setup choices become one typed profile (`age_band`, `max_words_per_sentence`, `longest_sentence`, `new_terms_per_step`, `worlds`, `calm`) passed into every rewrite prompt; the model must not add facts. Code checks word counts, glossary terms, and answer-key terms; retry once, then fall back to cached standard text.
+- D25 (settled): hackathon scope is the golden set for two worlds at one level, with the setup-time text step run live in the demo; the full custom-world/level pipeline is stretch. Caches are keyed by lesson version so edits never reuse stale artifacts.
+- D26 (settled): new image work uses Muse Image edits from the opening scene, not fresh generations, to stop style drift. This supersedes D10 for future generation; the existing independent-scene golden set stands.

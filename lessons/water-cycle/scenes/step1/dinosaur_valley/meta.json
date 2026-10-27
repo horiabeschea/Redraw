@@ -23,7 +23,12 @@
         "right": 1052,
         "bottom": 1343
       },
-      "coverage": 0.6489526098901099
+      "coverage": 0.6489526098901099,
+      "mask_dilated_png": "mask_lake_d.png",
+      "dilation_px": {
+        "media": 8,
+        "raster": 8
+      }
     }
   },
   "simpler": {
@@ -53,7 +58,12 @@
         "right": 931,
         "bottom": 1410
       },
-      "coverage": 0.7349416293601574
+      "coverage": 0.7349416293601574,
+      "mask_dilated_png": "simpler_mask_lake_d.png",
+      "dilation_px": {
+        "media": 8,
+        "raster": 8
+      }
     }
   }
 }

@@ -21,8 +21,18 @@ import argparse
 import base64
 import json
 import os
+import ssl
 import sys
 import urllib.request
+
+
+def _ssl_context():
+    """Verified context backed by certifi when installed (see voice.py)."""
+    try:
+        import certifi
+        return ssl.create_default_context(cafile=certifi.where())
+    except ImportError:
+        return None
 
 from openai import OpenAI
 
@@ -161,7 +171,7 @@ def save_image_data(data, path):
     API returns WebP bytes). Returns (final_path, info)."""
     payload = data.b64_json if data.b64_json else None
     if payload is None and data.url:
-        with urllib.request.urlopen(data.url) as r:
+        with urllib.request.urlopen(data.url, context=_ssl_context()) as r:
             raw = r.read()
         info = {"saved_from": "url"}
     else:

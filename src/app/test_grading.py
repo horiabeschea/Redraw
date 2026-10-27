@@ -13,7 +13,8 @@ ROOT = os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.abspath(__file__))))
 sys.path.insert(0, os.path.join(ROOT, "src"))
 
-from app.grading import grade_tap, point_in_box, read_png_gray
+from app.grading import (grade_tap, mask_path_for, point_in_box,
+                         read_png_gray)
 
 LESSON_DIR = os.path.join(ROOT, "lessons", "water-cycle")
 W, H = 1600, 1600  # all scene images are 1600x1600 media pixels
@@ -60,8 +61,8 @@ def main():
                 entry = meta.get(key, {}).get(noun)
                 assert entry and entry.get("box"), f"{d} {key}.{noun}"
                 mask = None
-                if entry.get("mask_png"):
-                    mp = os.path.join(d, entry["mask_png"])
+                if mask_path_for(entry):
+                    mp = os.path.join(d, mask_path_for(entry))
                     assert os.path.exists(mp), mp
                     mask = read_png_gray(mp)
                 xi, yi = scene_point(entry, mask, True)
@@ -74,6 +75,22 @@ def main():
                 assert "Not quite" in msg, f"{d} {key}: kind message"
                 checked += 1
     print(f"tap grading ok: {checked} hotspots x inside/outside")
+    dilated = 0
+    for mp in sorted(glob.glob(os.path.join(LESSON_DIR, "scenes", "step*",
+                                            "*", "meta.json"))):
+        d = os.path.dirname(mp)
+        meta = json.load(open(mp, encoding="utf-8"))
+        for key in ("masks", "masks_simpler"):
+            for noun, entry in meta.get(key, {}).items():
+                if not entry.get("mask_dilated_png"):
+                    continue
+                raw, _, _ = read_png_gray(os.path.join(d, entry["mask_png"]))
+                wide, _, _ = read_png_gray(
+                    os.path.join(d, entry["mask_dilated_png"]))
+                assert all(w >= r for w, r in zip(wide, raw)), (mp, noun)
+                assert sum(wide) > sum(raw), (mp, noun)
+                dilated += 1
+    print(f"dilation ok: {dilated} masks grown, none shrunk")
 
 
 if __name__ == "__main__":

@@ -14,9 +14,10 @@ ADAPTATION_DECISION_SCHEMA = {
     "type": "object",
     "properties": {
         "signal": {"type": "string",
-                   "enum": ["stuck", "bored", "got_it"]},
+                   "enum": ["stuck", "bored", "explore"]},
         "strategy": {"type": "string",
                      "enum": ["simplify_language", "redraw_simpler",
+                              "simplify_max", "offer_support",
                               "raise_challenge", "switch_to_tap_game",
                               "advance"]},
         "target_concept": {"type": "string"},

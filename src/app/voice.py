@@ -4,13 +4,16 @@ transcribe_wav(audio_bytes, keywords, cache_dir=None, refresh=False)
 posts one multipart call to POST /asr/transcribe (WAV only) with vocabulary
 biasing. Results cache by audio hash: identical clips never re-spend.
 
-phrase_to_signal(text) maps child speech to stuck/bored/got_it (rules;
-model fallback lives in the policy layer, not here).
+phrase_to_signal(text) maps child speech to stuck/bored/explore (policy
+signals) plus ready/back (deterministic lesson events, handled client-side
+with no model call). Unmapped speech returns None and is graded as a say-it
+answer; low-confidence input never triggers a transition by itself.
 """
 
 import hashlib
 import json
 import os
+import ssl
 import urllib.request
 
 TRANSCRIBE_URL = "https://api.meta.ai/v1/asr/transcribe"
@@ -24,8 +27,25 @@ SIGNAL_PHRASES = [
     (("don't get it", "dont get it", "do not get it", "don't understand",
       "confusing", "too hard", "what does it mean"), "stuck"),
     (("boring", "bored", "too easy", "again"), "bored"),
-    (("show me", "got it", "i know", "next", "i did it"), "got_it"),
+    (("show me", "show me more"), "explore"),
+    (("got it", "i got it", "i'm ready", "im ready"), "ready"),
+    (("back to the lesson", "go back", "back"), "back"),
 ]
+
+
+def extract_text(result):
+    """Transcript text from a transcribe response.
+
+    The API returns the transcript top-level ("transcript"); per-turn
+    transcripts are the fallback. Empty turns with a top-level transcript
+    is the normal success shape, not a failure.
+    """
+    top = (result.get("transcript") or "").strip()
+    if top:
+        return top
+    turns = result.get("turns", [])
+    return " ".join(t.get("transcript", t.get("text", "")) for t in turns
+                    ).strip()
 
 
 def phrase_to_signal(text):
@@ -34,6 +54,20 @@ def phrase_to_signal(text):
         if any(p in lowered for p in phrases):
             return signal
     return None
+
+
+def _ssl_context():
+    """Verified context backed by certifi when installed.
+
+    python.org macOS builds ship no trust roots, so a bare urlopen fails
+    with CERTIFICATE_VERIFY_FAILED; certifi (pip install certifi) fixes it
+    with no env vars. Falls back to the platform default otherwise.
+    """
+    try:
+        import certifi
+        return ssl.create_default_context(cafile=certifi.where())
+    except ImportError:
+        return None
 
 
 def _multipart(request_json, audio_bytes):
@@ -66,11 +100,13 @@ def transcribe_wav(audio_bytes, keywords=None, cache_dir=None, refresh=False):
         headers={"Authorization": f"Bearer {os.environ['MODEL_API_KEY']}",
                  "Accept": "application/json",
                  "Content-Type": f"multipart/form-data; boundary={boundary}"})
-    with urllib.request.urlopen(req) as resp:
+    ctx = _ssl_context()
+    with urllib.request.urlopen(req, context=ctx) as resp:
         result = json.load(resp)
+    text = extract_text(result)
     turns = result.get("turns", [])
-    text = " ".join(t.get("transcript", t.get("text", "")) for t in turns)
-    out = {"text": text, "turns": turns, "keywords": keywords or KEYWORDS}
+    out = {"text": text, "turns": turns, "keywords": keywords or KEYWORDS,
+           "raw": result}
     if cache_path:
         os.makedirs(cache_dir, exist_ok=True)
         with open(cache_path, "w", encoding="utf-8") as f:

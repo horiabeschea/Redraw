@@ -23,7 +23,12 @@
         "right": 1600,
         "bottom": 1600
       },
-      "coverage": 0.4560233691690962
+      "coverage": 0.4560233691690962,
+      "mask_dilated_png": "mask_river_d.png",
+      "dilation_px": {
+        "media": 8,
+        "raster": 5
+      }
     }
   },
   "simpler": {
@@ -53,7 +58,12 @@
         "right": 1543,
         "bottom": 1600
       },
-      "coverage": 0.35046628442141087
+      "coverage": 0.35046628442141087,
+      "mask_dilated_png": "simpler_mask_river_d.png",
+      "dilation_px": {
+        "media": 8,
+        "raster": 5
+      }
     }
   }
 }

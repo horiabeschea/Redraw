@@ -60,6 +60,56 @@ def read_png_gray(path):
     return bytes(pixels), width, height
 
 
+def write_png_gray(path, pixels, width, height):
+    """Write 8-bit grayscale PNG from bytes-like 0/255 pixels, row-major."""
+    raw = b"".join(b"\x00" + bytes(pixels[y * width:(y + 1) * width])
+                   for y in range(height))
+
+    def chunk(ctype, data):
+        c = ctype + data
+        return struct.pack(">I", len(data)) + c + struct.pack(
+            ">I", zlib.crc32(c))
+
+    png = (b"\x89PNG\r\n\x1a\n"
+           + chunk(b"IHDR", struct.pack(">IIBBBBB", width, height, 8, 0,
+                                        0, 0, 0))
+           + chunk(b"IDAT", zlib.compress(raw))
+           + chunk(b"IEND", b""))
+    with open(path, "wb") as f:
+        f.write(png)
+
+
+def dilate(pixels, width, height, radius):
+    """Binary dilation (Chebyshev) via integral image. Returns bytes."""
+    src = [1 if v else 0 for v in pixels]
+    integ = [0] * ((width + 1) * (height + 1))
+    for y in range(height):
+        row_sum = 0
+        for x in range(width):
+            row_sum += src[y * width + x]
+            integ[(y + 1) * (width + 1) + x + 1] = (
+                integ[y * (width + 1) + x + 1] + row_sum)
+    out = bytearray(width * height)
+    stride = width + 1
+    for y in range(height):
+        y0 = max(0, y - radius)
+        y1 = min(height - 1, y + radius)
+        for x in range(width):
+            x0 = max(0, x - radius)
+            x1 = min(width - 1, x + radius)
+            total = (integ[(y1 + 1) * stride + x1 + 1]
+                     - integ[y0 * stride + x1 + 1]
+                     - integ[(y1 + 1) * stride + x0]
+                     + integ[y0 * stride + x0])
+            out[y * width + x] = 255 if total else 0
+    return bytes(out)
+
+
+def mask_path_for(entry):
+    """Dilated mask when present (small hands), else the raw SAM mask."""
+    return entry.get("mask_dilated_png") or entry.get("mask_png")
+
+
 def point_in_box(box, x, y):
     return box["left"] <= x < box["right"] and box["top"] <= y < box["bottom"]
 

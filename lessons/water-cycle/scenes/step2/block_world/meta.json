@@ -23,7 +23,12 @@
         "right": 1529,
         "bottom": 578
       },
-      "coverage": 0.6266973611874657
+      "coverage": 0.6266973611874657,
+      "mask_dilated_png": "mask_sun_d.png",
+      "dilation_px": {
+        "media": 8,
+        "raster": 8
+      }
     }
   },
   "simpler": {
@@ -53,7 +58,12 @@
         "right": 1435,
         "bottom": 402
       },
-      "coverage": 0.8029399112020195
+      "coverage": 0.8029399112020195,
+      "mask_dilated_png": "simpler_mask_sun_d.png",
+      "dilation_px": {
+        "media": 8,
+        "raster": 8
+      }
     }
   }
 }

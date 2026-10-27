@@ -2,57 +2,135 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>Redraw — Water Cycle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap">
 <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
-<main id="app">
-  <header>
-    <h1>Water Cycle</h1>
+<div class="lesson">
+  <!-- Jury strip: not part of the child's screen -->
+  <div class="jury-strip">
     <div class="row">
-      <div id="worlds" role="group" aria-label="World"></div>
-      <button id="calm" aria-pressed="false">Calm mode</button>
-      <button id="priv" aria-pressed="false" title="Grade and decide on open weights">Private mode</button>
+      <span class="tag" id="viewtag">JURY VIEW</span>
+      <span class="note" id="viewnote"></span>
+    </div>
+    <button id="jurytoggle"></button>
+  </div>
+
+  <header class="topbar">
+    <div class="brand">
+      <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#16776D" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12a7 7 0 0 1 12-5"/><polyline points="17 3 17.5 7.5 13 7.5"/><path d="M19 12a7 7 0 0 1-12 5"/><polyline points="7 21 6.5 16.5 11 16.5"/></svg>
+      <span>Redraw</span>
+    </div>
+    <ol id="dots" aria-label="Lesson progress"></ol>
+    <div class="row">
+      <div class="row" id="worlds" role="group" aria-label="World"></div>
+      <button class="pill" id="calm" aria-pressed="false"><span class="dot"></span>Calm mode</button>
+      <button class="icon-btn" id="lock" aria-label="Grown-ups only">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6B7686" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+      </button>
     </div>
   </header>
 
-  <ol id="dots" aria-label="Progress"></ol>
+  <main class="main">
+    <div class="left">
+      <figure id="stage">
+        <div class="frame">
+          <img id="scene" alt="Lesson scene">
+          <canvas id="overlay"></canvas>
+        </div>
+        <div class="float" id="prompt-pill">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C9461F" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8"/></svg>
+          <span id="prompt"></span>
+        </div>
+        <div class="float hidden" id="verdict-bubble" aria-live="polite"><span id="verdict-text"></span><span id="verdict-bar" class="hidden"><span id="verdict-fill"></span></span></div>
+        <div class="jury-legend jury-only">
+          <span class="tag">JURY</span>
+          Dashed outline is the SAM 3.1 tap target. The child does not see it.
+        </div>
+        <div class="float hidden" id="heard-bubble">
+          <span id="heardspin" class="spin hidden" aria-hidden="true"></span>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16776D" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3z"/><path d="M5 11a7 7 0 0 0 14 0"/><path d="M12 18v3"/></svg>
+          <div>
+            <div id="heard" aria-live="polite"></div>
+            <div class="jury-note jury-only" id="heardby"></div>
+          </div>
+        </div>
+      </figure>
 
-  <figure id="stage">
-    <img id="scene" alt="Lesson scene">
-    <canvas id="overlay"></canvas>
-  </figure>
+      <div class="caption-card">
+        <div>
+          <p id="caption"></p>
+        </div>
+        <button class="soft-btn" id="read">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1F2A37" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16 9a4 4 0 0 1 0 6"/></svg>
+          Read to me
+        </button>
+        <button class="soft-btn" id="sentnext" style="visibility: hidden">Next sentence →</button>
+        <button class="soft-btn" id="stopread">Stop</button>
+        <p id="analogy" class="hidden"><b>Think of it like this: </b><span id="analogy-text"></span></p>
+      </div>
 
-  <p id="caption"></p>
-  <div class="row">
-    <button id="read">Read aloud</button>
-    <button id="prev">Back</button>
-    <button id="next">Next</button>
+      <section class="controls" id="signals" aria-label="Tell the lesson how you feel">
+        <button class="signal" data-signal="stuck" aria-pressed="false"><b>I don't get it</b><small>Explain it simpler</small></button>
+        <button class="signal" data-signal="bored" aria-pressed="false"><b>Boring!</b><small>Give me a challenge</small></button>
+        <button class="signal" data-signal="explore" aria-pressed="false"><b>Show it</b><small>Let me tap and see</small></button>
+        <button class="signal" id="gotit" data-signal="ready" aria-pressed="false"><b>Got it</b><small>Quiz me</small></button>
+        <button class="signal" id="back" data-signal="back" aria-pressed="false"><b>Back to the lesson</b><small>Leave the detour</small></button>
+        <button id="mic" aria-label="Hold and say it">
+          <span class="disc">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3z"/><path d="M5 11a7 7 0 0 0 14 0"/><path d="M12 18v3"/></svg>
+          </span>
+          Say it
+          <span class="meter" aria-hidden="true"><span id="miclevel"></span></span>
+        </button>
+      </section>
+    </div>
+
+    <!-- Jury panel: reviewers only -->
+    <aside class="jury-panel jury-only" aria-label="Why it changed">
+      <div>
+        <span class="tag">JURY ONLY · NOT SHOWN TO THE CHILD</span>
+        <h2>Why it changed</h2>
+        <div class="sub">The child steers. Every change has a reason you can read.</div>
+      </div>
+      <ol id="timeline"></ol>
+      <div>
+        <div style="font-size: 13px; font-weight: 800; color: var(--jury-dim); margin-bottom: 6px">Same step, two ways</div>
+        <div class="two-ways">
+          <div><b>Original</b><span id="way-original"></span></div>
+          <div class="hi"><b>Redraw</b><span id="way-redraw"></span></div>
+        </div>
+      </div>
+      <div class="jury-foot">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8FE0D3" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+        <span id="backendnote"></span>
+      </div>
+    </aside>
+  </main>
+</div>
+
+<!-- Grown-ups gate -->
+<div class="gate hidden" id="gate">
+  <div role="dialog" aria-modal="true" aria-labelledby="gate-title">
+    <div>
+      <h2 id="gate-title">Grown-ups only</h2>
+      <div class="sub" style="font-size: 15px; font-weight: 600; color: var(--muted); margin-top: 4px">Answer two questions to open the parent settings.</div>
+    </div>
+    <div id="gate-quiz">
+      <div id="gate-q"></div>
+      <div id="gate-answers"></div>
+    </div>
+    <div id="gate-fail" class="hidden" style="display: flex; flex-direction: column; gap: 12px">
+      <div style="font-size: 18px; font-weight: 800">Not quite. Ask a grown-up to help.</div>
+      <button class="outline" id="gate-retry" style="height: 56px">Try again</button>
+    </div>
+    <a href="/setup" class="primary hidden" id="gate-ok">Open parent settings</a>
+    <button class="ghost" id="gate-close">Back to the lesson</button>
   </div>
-
-  <section id="signals" aria-label="Tell the lesson how you feel">
-    <button data-signal="stuck">I don't get it</button>
-    <button data-signal="bored">Boring!</button>
-    <button data-signal="got_it">Show me</button>
-    <button id="mic">Hold to talk</button>
-    <p id="heard" aria-live="polite"></p>
-  </section>
-
-  <section id="check" aria-label="Check understanding">
-    <button id="tapmode">Tap where…</button>
-    <p id="tapq"></p>
-    <p id="verdict" aria-live="polite"></p>
-    <p id="sayitq"></p>
-    <textarea id="sayit" rows="2" placeholder="Say it in your words…"></textarea>
-    <button id="saysave">Save answer</button>
-  </section>
-
-  <section id="why" aria-label="Why it changed">
-    <h2>Why it changed</h2>
-    <ol id="timeline"></ol>
-  </section>
-</main>
+</div>
 <script src="/app.js"></script>
 </body>
 </html>
