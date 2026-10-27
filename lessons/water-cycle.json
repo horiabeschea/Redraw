@@ -1,0 +1,125 @@
+{
+  "topic": "water-cycle",
+  "steps": [
+    {
+      "analogies": {
+        "block_world": "The sun heats the block lake. Lake water turns into invisible air.",
+        "dinosaur_valley": "The sun heats the lake by the ferns. Lake water turns into invisible air."
+      },
+      "caption": "The sun heats the lake. Lake water turns into invisible air. This is evaporation: water turning into invisible air.",
+      "correction": "The sun heats water, it does not pull it.",
+      "image_prompts": {
+        "block_world": "Fixed layout: a block lake at the left, the sun at the top right, blocky hills at the back, and a river at the right. Blocky trees are small background details. Calm soft colours. No text, letters, numbers, labels or logos. No human faces. No scary elements, no fighting, and no dangerous weather. Change for this step: make the lake large, separate from other objects, and unobstructed, with clear air above it and no visible steam.",
+        "dinosaur_valley": "Fixed layout: a lake at the left, the sun at the top right, hills and distant volcanoes at the back, and a river at the right. Ferns and small friendly plant-eating dinosaurs are small background details. Calm soft colours. No text, letters, numbers, labels or logos. No human faces. No scary elements, no predators, no fighting, and no dangerous weather. Change for this step: make the lake large, separate from other objects, and unobstructed, with clear air above it and no visible steam."
+      },
+      "misconception": "the sun \"sucks up\" water",
+      "say_it": {
+        "answer_key": ": The sun heats the lake water",
+        "prompt": "Tell me what happens here. Use your own words."
+      },
+      "simpler_caption": "Sun heats the lake. Water turns into invisible air.",
+      "tap_question": {
+        "prompt": "Tap the lake.",
+        "target_noun": "lake"
+      },
+      "step": 1,
+      "step_name": "evaporation"
+    },
+    {
+      "analogies": {
+        "block_world": "Warm air rises above the block lake. It carries invisible air up.",
+        "dinosaur_valley": "Warm air rises above the lake. It carries invisible air up."
+      },
+      "caption": "Invisible warm air goes up. It carries water up with it. This invisible air is water vapor: invisible air from water.",
+      "correction": "Water vapor is invisible, unlike tiny drops you see.",
+      "image_prompts": {
+        "block_world": "Fixed layout: a block lake at the left, the sun at the top right, blocky hills at the back, and a river at the right. Blocky trees are small background details. Calm soft colours. No text, letters, numbers, labels or logos. No human faces. No scary elements, no fighting, and no dangerous weather. Change for this step: make the sun large, separate from other objects, and unobstructed, with clear invisible air above the block lake and no visible steam or smoke.",
+        "dinosaur_valley": "Fixed layout: a lake at the left, the sun at the top right, hills and distant volcanoes at the back, and a river at the right. Ferns and small friendly plant-eating dinosaurs are small background details. Calm soft colours. No text, letters, numbers, labels or logos. No human faces. No scary elements, no predators, no fighting, and no dangerous weather. Change for this step: make the sun large, separate from other objects, and unobstructed, with clear invisible air above the lake and no visible steam or smoke."
+      },
+      "misconception": "vapor is visible steam",
+      "say_it": {
+        "answer_key": ": The rising air is warm",
+        "prompt": "Tell me what happens here. Use your own words."
+      },
+      "simpler_caption": "Warm air goes up. Air carries water up.",
+      "tap_question": {
+        "prompt": "Tap the sun.",
+        "target_noun": "sun"
+      },
+      "step": 2,
+      "step_name": "vapor_rises"
+    },
+    {
+      "analogies": {
+        "block_world": "High above the blocky hills, air cools. Tiny drops gather as one square cloud.",
+        "dinosaur_valley": "High above the ferns, air cools. Tiny drops gather as a cloud."
+      },
+      "caption": "High up, the air is cool. Invisible air turns into tiny drops. Many tiny drops make a cloud. This is condensation: invisible air turning into tiny drops.",
+      "correction": "A cloud is many tiny water drops together.",
+      "image_prompts": {
+        "block_world": "Fixed layout: a block lake at the left, the sun at the top right, blocky hills at the back, and a river at the right. Blocky trees are small background details. Calm soft colours. No text, letters, numbers, labels or logos. No human faces. No scary elements, no fighting, and no dangerous weather. Change for this step: add one large square cloud, separate from other objects and unobstructed, high in the sky and made of tiny soft drops.",
+        "dinosaur_valley": "Fixed layout: a lake at the left, the sun at the top right, hills and distant volcanoes at the back, and a river at the right. Ferns and small friendly plant-eating dinosaurs are small background details. Calm soft colours. No text, letters, numbers, labels or logos. No human faces. No scary elements, no predators, no fighting, and no dangerous weather. Change for this step: add one large cloud, separate from other objects and unobstructed, high in the sky and made of tiny soft drops."
+      },
+      "misconception": "clouds are smoke or cotton",
+      "say_it": {
+        "answer_key": ": Invisible air cools high up",
+        "prompt": "Tell me what happens here. Use your own words."
+      },
+      "simpler_caption": "Cool air makes tiny drops. Tiny drops make a cloud.",
+      "tap_question": {
+        "prompt": "Tap the cloud.",
+        "target_noun": "cloud"
+      },
+      "step": 3,
+      "step_name": "condensation"
+    },
+    {
+      "analogies": {
+        "block_world": "Over the blocky trees, drops grow heavy. Heavy drops fall as rain.",
+        "dinosaur_valley": "Over the ferns, drops grow heavy. Heavy drops fall as rain."
+      },
+      "caption": "Tiny drops bump and join together. Drops grow big and heavy. Heavy drops fall as rain. This is precipitation: heavy drops falling as rain.",
+      "correction": "Rain falls when drops grow too heavy to float.",
+      "image_prompts": {
+        "block_world": "Fixed layout: a block lake at the left, the sun at the top right, blocky hills at the back, and a river at the right. Blocky trees are small background details. Calm soft colours. No text, letters, numbers, labels or logos. No human faces. No scary elements, no fighting, and no dangerous weather. Change for this step: show one large square cloud with large, separate, unobstructed and gentle rain falling from it.",
+        "dinosaur_valley": "Fixed layout: a lake at the left, the sun at the top right, hills and distant volcanoes at the back, and a river at the right. Ferns and small friendly plant-eating dinosaurs are small background details. Calm soft colours. No text, letters, numbers, labels or logos. No human faces. No scary elements, no predators, no fighting, and no dangerous weather. Change for this step: show one large cloud with large, separate, unobstructed and gentle rain falling from it."
+      },
+      "misconception": "rain comes from holes in the cloud",
+      "say_it": {
+        "answer_key": ": Drops bump and join together",
+        "prompt": "Tell me what happens here. Use your own words."
+      },
+      "simpler_caption": "Big drops make rain. Rain falls down.",
+      "tap_question": {
+        "prompt": "Tap the rain.",
+        "target_noun": "rain"
+      },
+      "step": 4,
+      "step_name": "precipitation"
+    },
+    {
+      "analogies": {
+        "block_world": "Rain water runs into the block lake. Rain water also fills the river.",
+        "dinosaur_valley": "Rain water runs into the lake. Rain water also fills the river."
+      },
+      "caption": "Rain water runs into rivers. Rain water soaks into the ground. Water gathers in the lake again. This is collection: water gathering in one place. The sun heats it again.",
+      "correction": "Rain water gathers and the sun heats it again.",
+      "image_prompts": {
+        "block_world": "Fixed layout: a block lake at the left, the sun at the top right, blocky hills at the back, and a river at the right. Blocky trees are small background details. Calm soft colours. No text, letters, numbers, labels or logos. No human faces. No scary elements, no fighting, and no dangerous weather. Change for this step: make the river large, separate from other objects, and unobstructed, filled with calm water leading toward the block lake.",
+        "dinosaur_valley": "Fixed layout: a lake at the left, the sun at the top right, hills and distant volcanoes at the back, and a river at the right. Ferns and small friendly plant-eating dinosaurs are small background details. Calm soft colours. No text, letters, numbers, labels or logos. No human faces. No scary elements, no predators, no fighting, and no dangerous weather. Change for this step: make the river large, separate from other objects, and unobstructed, filled with calm water leading toward the lake."
+      },
+      "misconception": "rain is made fresh in the cloud",
+      "say_it": {
+        "answer_key": ": Water runs into rivers and lakes",
+        "prompt": "Tell me what happens here. Use your own words."
+      },
+      "simpler_caption": "Rain fills the lake. Sun heats water again.",
+      "tap_question": {
+        "prompt": "Tap the river.",
+        "target_noun": "river"
+      },
+      "step": 5,
+      "step_name": "collection"
+    }
+  ]
+}

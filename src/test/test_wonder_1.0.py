@@ -34,6 +34,12 @@ resp = client.responses.create(
     reasoning={"effort": "medium"},
     input=BRIEF,
     text={"format": {"type": "json_schema", "name": "lesson_step",
-                     "strict": True, "schema": step_schema}},
+                     "strict": False, "schema": step_schema}},
 )
 step1 = json.loads(resp.output_text)
+
+# export the received lesson to the lessons folder
+OUT_PATH = os.path.join(os.path.dirname(__file__), "..", "..", "lessons", "water-cycle.json")
+with open(os.path.normpath(OUT_PATH), "w", encoding="utf-8") as f:
+    json.dump(step1, f, indent=2, ensure_ascii=False)
+print(f"wrote {os.path.normpath(OUT_PATH)}")
