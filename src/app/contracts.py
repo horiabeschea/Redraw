@@ -27,6 +27,43 @@ ADAPTATION_DECISION_SCHEMA = {
     "additionalProperties": False,
 }
 
+PARENT_REPORT_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "mastered_concepts": {"type": "array", "items": {"type": "string"}},
+        "stuck_steps": {"type": "array", "items": {
+            "type": "object",
+            "properties": {
+                "step": {"type": "integer", "minimum": 1},
+                "concept": {"type": "string"},
+                "stuck_signals": {"type": "integer", "minimum": 0},
+                "support_flag": {"type": "string",
+                                 "enum": ["grown_up_asked", "none"]},
+                "outcome": {"type": "string",
+                            "enum": ["mastered", "moved_on",
+                                     "still_exploring"]},
+            },
+            "required": ["step", "concept", "stuck_signals",
+                         "support_flag", "outcome"],
+            "additionalProperties": False}},
+        "world_fit": {"type": "array", "items": {
+            "type": "object",
+            "properties": {
+                "world": {"type": "string"},
+                "checks_passed": {"type": "integer", "minimum": 0},
+                "checks_total": {"type": "integer", "minimum": 0},
+            },
+            "required": ["world", "checks_passed", "checks_total"],
+            "additionalProperties": False}},
+        "strengths": {"type": "array", "items": {"type": "string"}},
+        "growth_areas": {"type": "array", "items": {"type": "string"}},
+        "try_at_home": {"type": "array", "items": {"type": "string"}},
+    },
+    "required": ["mastered_concepts", "stuck_steps", "world_fit",
+                 "strengths", "growth_areas", "try_at_home"],
+    "additionalProperties": False,
+}
+
 LEARNER_STATE_SCHEMA = {
     "type": "object",
     "properties": {

@@ -95,10 +95,25 @@
           <label class="field-label" for="topic" style="font-size: 13px">Or build a new topic</label>
           <div style="display: flex; gap: 8px">
             <input class="text" id="topic" type="text" placeholder="For example: volcanoes" style="flex: 1; min-width: 0; font-size: 15px">
-            <button class="outline" disabled title="Lesson Builder is not wired yet">Build</button>
+            <textarea class="text" id="topicfacts" rows="4" placeholder="One fact per line — only these facts reach your child" style="width: 100%; margin-top: 8px; min-height: 88px; font-size: 14px; padding: 10px 12px"></textarea>
+            <button class="outline" id="buildbtn">Build</button>
           </div>
         </div>
         <div style="font-size: 12px; font-weight: 700; color: #3e4856">Muse Wonder writes the lesson once and a second pass checks the science. You read it before your child does.</div>
+        <div class="hint" id="buildnote" aria-live="polite"></div>
+        <div id="buildout"></div>
+        <div style="margin-top: 12px">
+          <div class="field-label" style="font-size: 13px">Lessons on this device</div>
+          <div id="packlist"></div>
+        </div>
+        <div style="margin-top: 12px">
+          <div class="field-label" style="font-size: 13px">Parent report</div>
+          <div class="hint" id="reportnote">Builds from the last lesson on this device.</div>
+          <div style="display: flex; gap: 8px; margin-top: 8px">
+            <button class="outline" id="reportbtn">Build the report</button>
+          </div>
+          <div id="reportout" aria-live="polite"></div>
+        </div>
       </section>
     </div>
   </main>

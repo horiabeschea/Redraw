@@ -13,6 +13,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.dirname(
 sys.path.insert(0, os.path.join(ROOT, "src"))
 
 from app.contracts import (ADAPTATION_DECISION_SCHEMA, LEARNER_STATE_SCHEMA,
+                            PARENT_REPORT_SCHEMA,
                             validate)
 from build_lesson_pack import PACK_SCHEMA
 
@@ -37,6 +38,12 @@ def main():
                "stuck_count": 0, "bored_count": 0}
     validate(LEARNER_STATE_SCHEMA, learner)
     print("learner-state ok: blank initial state validates")
+
+    from app.report import aggregate, rule_fallback
+    sample = rule_fallback(aggregate([], [], 1, {}))
+    validate(PARENT_REPORT_SCHEMA,
+             {k: v for k, v in sample.items() if k != "fallback"})
+    print("report ok: fallback template validates")
 
     missing = (set(ADAPTATION_DECISION_SCHEMA["properties"]["strategy"]["enum"])
                - seen)

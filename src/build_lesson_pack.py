@@ -60,45 +60,10 @@ WORLD_BACK = {
     "block_world": "blocky hills",
 }
 
-STEP_SCHEMA = {
-    "type": "object",
-    "properties": {
-        "step": {"type": "integer", "minimum": 1, "maximum": 5},
-        "step_name": {"type": "string"},
-        "caption": {"type": "string"},
-        "simpler_caption": {"type": "string"},
-        "misconception": {"type": "string"},
-        "correction": {"type": "string"},
-        "analogies": {"type": "object",
-                      "additionalProperties": {"type": "string"}},
-        "tap_question": {"type": "object", "properties": {
-            "prompt": {"type": "string"}, "target_noun": {"type": "string"}},
-            "required": ["prompt", "target_noun"],
-            "additionalProperties": False},
-        "say_it": {"type": "object", "properties": {
-            "prompt": {"type": "string"}, "answer_key": {"type": "string"}},
-            "required": ["prompt", "answer_key"],
-            "additionalProperties": False},
-        "image_prompts": {"type": "object",
-                          "additionalProperties": {"type": "string"}},
-    },
-    "required": ["caption", "simpler_caption", "misconception", "correction",
-                 "analogies", "tap_question", "say_it", "image_prompts",
-                 "step", "step_name"],
-    "additionalProperties": False,
-}
-
-# strict must stay False: strict mode rejects the free-form analogies /
-# image_prompts maps (their keys differ per world).
-PACK_SCHEMA = {
-    "type": "object",
-    "properties": {
-        "steps": {"type": "array", "items": STEP_SCHEMA,
-                  "minItems": 5, "maxItems": 5},
-    },
-    "required": ["steps"],
-    "additionalProperties": False,
-}
+# Pack shape lives in app.builder (single source of truth; adds optional
+# key_terms for Builder topics). Strict stays False: strict mode rejects the
+# free-form analogies / image_prompts maps (their keys differ per world).
+from app.builder import PACK_SCHEMA
 
 
 def load_brief():

@@ -11,6 +11,7 @@ Planned endpoints (added with later plan steps, same route table shape):
   POST /api/policy   adaptation decisions (Muse Spark 1.3)
   POST /api/sayit    say-it grading (Muse Spark 1.3)
   WS   /api/voice    Voice Transcribe proxy
+  POST /api/report  parent report (Muse Spark 1.3, offline template fallback)
 
 NOTE: the decided stack is FastAPI on Modal (D4/D15). PyPI is unreachable
 from the dev environment, so local serving uses this stdlib adapter with an
@@ -23,6 +24,7 @@ import argparse
 import json
 import mimetypes
 import os
+import re
 import sys
 import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -38,6 +40,12 @@ LESSON_DIR = os.path.join(ROOT, "lessons", "water-cycle")
 CACHE_DIR = os.path.join(LESSON_DIR, ".cache")
 LATENCY_LOG = os.path.join(CACHE_DIR, "latency.jsonl")
 BACKEND = os.environ.get("REDRAW_BACKEND", "meta")
+
+
+def _needs_meta():
+    if BACKEND != "meta":
+        raise ValueError("needs Standard mode: switch back from Private "
+                         "mode for this build step")
 
 _clients = {}
 
@@ -95,10 +103,47 @@ class Handler(BaseHTTPRequestHandler):
         if url.path in ("/app.js", "/setup.js", "/styles.css"):
             return self._send_file(_safe_join(
                 STATIC_DIR, url.path.lstrip("/")) or "")
+        if url.path == "/api/packs":
+            try:
+                from app.builder import lesson_paths, valid_slug
+                out = []
+                base = os.path.join(ROOT, "lessons")
+                for slug in sorted(os.listdir(base)):
+                    if not valid_slug(slug):
+                        continue
+                    pack_file = lesson_paths(ROOT, slug)["pack"]
+                    if not os.path.isfile(pack_file):
+                        continue
+                    with open(pack_file, encoding="utf-8") as f:
+                        pack = json.load(f)
+                    out.append({"slug": slug,
+                                "topic": pack.get("topic", slug),
+                                "steps": len(pack.get("steps", [])),
+                                "version": pack.get("version", 1)})
+                return self._send(200, json.dumps({"packs": out}),
+                                  "application/json")
+            except Exception as e:
+                return self._send(400, json.dumps({"error": str(e)}),
+                                  "application/json")
         if url.path == "/api/pack":
-            return self._send_file(os.path.join(LESSON_DIR, "pack.json"))
+            try:
+                from app.builder import lesson_paths, valid_slug
+                from urllib.parse import parse_qs
+                q = parse_qs(urlparse(self.path).query)
+                slug = q.get("topic", ["water-cycle"])[0]
+                if not valid_slug(slug):
+                    raise ValueError("unknown lesson topic")
+                pack_file = lesson_paths(ROOT, slug)["pack"]
+                if not os.path.isfile(pack_file):
+                    raise ValueError("unknown lesson topic")
+                return self._send_file(pack_file)
+            except Exception as e:
+                return self._send(400, json.dumps({"error": str(e)}),
+                                  "application/json")
         if url.path == "/api/captions":
             try:
+                from app.builder import (glossary_for, lesson_paths,
+                                         valid_slug)
                 from app.captions import profile_for, rewrite_captions
                 from urllib.parse import parse_qs
                 q = parse_qs(urlparse(self.path).query)
@@ -106,10 +151,18 @@ class Handler(BaseHTTPRequestHandler):
                 terms = int(q.get("terms", ["1"])[0])
                 if level not in ("short", "medium", "longer"):
                     raise ValueError("level must be short|medium|longer")
-                pack = json.load(open(os.path.join(LESSON_DIR, "pack.json"),
+                slug = q.get("topic", ["water-cycle"])[0]
+                if not valid_slug(slug):
+                    raise ValueError("unknown lesson topic")
+                lp = lesson_paths(ROOT, slug)
+                pack = json.load(open(os.path.join(lp["pack"]),
                                       encoding="utf-8"))
                 profile = profile_for(level, terms)
-                out, hit = rewrite_captions(get_client(), pack, profile)
+                out, hit = rewrite_captions(
+                    get_client(), pack, profile,
+                    model=backend_models()["policy_model"],
+                    lesson_dir=lp["dir"],
+                    glossary=glossary_for(pack))
                 return self._send(200, json.dumps(
                     {"captions": out["captions"], "cached": hit,
                      "fallback": out.get("fallback", False)}),
@@ -121,7 +174,14 @@ class Handler(BaseHTTPRequestHandler):
             return self._send(200, json.dumps({"backend": BACKEND}),
                               "application/json")
         if url.path.startswith("/assets/"):
-            path = _safe_join(SCENES_DIR, *url.path[len("/assets/"):].split("/"))
+            parts = url.path[len("/assets/"):].split("/")
+            if len(parts) < 2:
+                return self._send(404, "not found", "text/plain")
+            from app.builder import lesson_paths, valid_slug
+            if not valid_slug(parts[0]):
+                return self._send(404, "not found", "text/plain")
+            scenes = lesson_paths(ROOT, parts[0])["scenes"]
+            path = _safe_join(scenes, *parts[1:])
             if path and os.path.isfile(path):
                 return self._send_file(path)
             return self._send(404, "not found", "text/plain")
@@ -196,6 +256,240 @@ class Handler(BaseHTTPRequestHandler):
                                         "cached": from_cache}) + "\n")
                 return self._send(200, json.dumps(
                     {"result": out, "ms": ms, "cached": from_cache}),
+                    "application/json")
+            except Exception as e:
+                return self._send(400, json.dumps({"error": str(e)}),
+                                  "application/json")
+        if url.path == "/api/report":
+            try:
+                body = json.loads(self.rfile.read(
+                    int(self.headers.get("Content-Length", 0))) or b"{}")
+                from app.report import generate
+                t0 = time.monotonic()
+                snapshot = {"entries": (body.get("entries") or [])[:200],
+                            "mastered": body.get("mastered") or [],
+                            "current_step": body.get("current_step", 1),
+                            "concepts": body.get("concepts") or {}}
+                out, _ = generate(
+                    get_client(), snapshot, body.get("profile") or {},
+                    model=backend_models().get("policy_model"))
+                ms = int((time.monotonic() - t0) * 1000)
+                with open(LATENCY_LOG, "a", encoding="utf-8") as f:
+                    f.write(json.dumps({"route": "report", "ms": ms,
+                                        "cached": False}) + "\n")
+                return self._send(200, json.dumps(
+                    {"result": out, "ms": ms,
+                     "fallback": bool(out.get("fallback"))}),
+                    "application/json")
+            except Exception as e:
+                return self._send(400, json.dumps({"error": str(e)}),
+                                  "application/json")
+        if url.path == "/api/build-core":
+            # Wonder core + verifier for a parent-chosen topic. Standard
+            # mode only: there is no open-weights Wonder equivalent.
+            try:
+                _needs_meta()
+                from app.builder import (PRESET_WORLDS, build_core,
+                                         lesson_paths, valid_slug)
+                from app.captions import LEVELS
+                body = json.loads(self.rfile.read(
+                    int(self.headers.get("Content-Length", 0))) or b"{}")
+                slug = body.get("slug", "")
+                topic = (body.get("topic") or "").strip()
+                facts = [str(f).strip() for f in (body.get("facts") or [])
+                         if str(f).strip()]
+                if not valid_slug(slug):
+                    raise ValueError("bad lesson slug")
+                if not topic or len(facts) < 3:
+                    raise ValueError(
+                        "a topic and at least 3 facts are required")
+                worlds = [w for w in (body.get("worlds") or [])
+                          if w in PRESET_WORLDS]
+                if not worlds:
+                    worlds = ["dinosaur_valley", "block_world"]
+                profile = body.get("profile") or {}
+                level = profile.get("level", "medium")
+                if level not in LEVELS:
+                    raise ValueError("level must be short|medium|longer")
+                lv = LEVELS[level]
+                age = str(profile.get("age", "7-8")).split("\u2013")[0]
+                age = int(age.split("-")[0]) if age.split("-")[0].isdigit() \
+                    else 8
+                tiers = {"age": age,
+                         "max_words": lv["max_words_per_sentence"],
+                         "longest": lv["longest_sentence"],
+                         "new_terms": int(profile.get("terms", 1))}
+                lp = lesson_paths(ROOT, slug)
+                os.makedirs(lp["dir"], exist_ok=True)
+                client = get_client()
+                if client is None:
+                    raise ValueError("MODEL_API_KEY is missing")
+                t0 = time.monotonic()
+                pack, verdicts, cached = build_core(
+                    client, lp, slug, topic, facts, tiers, worlds)
+                ms = int((time.monotonic() - t0) * 1000)
+                with open(LATENCY_LOG, "a", encoding="utf-8") as f:
+                    f.write(json.dumps({"route": "build-core", "ms": ms,
+                                        "cached": cached}) + "\n")
+                return self._send(200, json.dumps(
+                    {"pack": pack, "verdicts": verdicts, "cached": cached}),
+                    "application/json")
+            except Exception as e:
+                return self._send(400, json.dumps({"error": str(e)}),
+                                  "application/json")
+        if url.path == "/api/verify":
+            # Re-run the Wonder verifier after a parent edits wording.
+            try:
+                _needs_meta()
+                from app.builder import lesson_paths, valid_slug, verify_pack
+                body = json.loads(self.rfile.read(
+                    int(self.headers.get("Content-Length", 0))) or b"{}")
+                slug = body.get("slug", "")
+                if not valid_slug(slug):
+                    raise ValueError("bad lesson slug")
+                lp = lesson_paths(ROOT, slug)
+                if not os.path.isfile(lp["pack"]):
+                    raise ValueError("unknown lesson topic")
+                client = get_client()
+                if client is None:
+                    raise ValueError("MODEL_API_KEY is missing")
+                verdicts = verify_pack(client, lp, refresh=True)
+                return self._send(200, json.dumps({"verdicts": verdicts}),
+                                  "application/json")
+            except Exception as e:
+                return self._send(400, json.dumps({"error": str(e)}),
+                                  "application/json")
+        if url.path == "/api/analogy":
+            # Custom-world analogies (Spark) merged into the pack, then
+            # verifier-checked for that world before returning. Standard
+            # mode only: the checker needs Wonder.
+            try:
+                _needs_meta()
+                from app.builder import (build_custom_analogy, lesson_paths,
+                                         valid_slug, verify_pack)
+                from app.contracts import validate
+                from app.builder import PACK_SCHEMA
+                body = json.loads(self.rfile.read(
+                    int(self.headers.get("Content-Length", 0))) or b"{}")
+                slug = body.get("slug", "")
+                world = body.get("world", "")
+                description = (body.get("description") or "").strip()
+                if not valid_slug(slug):
+                    raise ValueError("bad lesson slug")
+                if not re.match(r"^[a-z0-9_]{1,40}$", world):
+                    raise ValueError("bad world id")
+                if not description:
+                    raise ValueError("a world description is required")
+                lp = lesson_paths(ROOT, slug)
+                with open(lp["pack"], encoding="utf-8") as f:
+                    pack = json.load(f)
+                client = get_client()
+                if client is None:
+                    raise ValueError("MODEL_API_KEY is missing")
+                texts = build_custom_analogy(
+                    client, backend_models()["policy_model"], pack, world,
+                    description)
+                for s in pack["steps"]:
+                    s["analogies"][world] = texts[s["step"]]
+                validate(PACK_SCHEMA, {"steps": pack["steps"]})
+                verdicts = verify_pack(client, lp, worlds=[world],
+                                       refresh=True)
+                if any(v["accurate"] == "no" for v in verdicts):
+                    raise ValueError("checker rejected the new analogies: "
+                                     + "; ".join(
+                                         v["issue"] for v in verdicts
+                                         if v["accurate"] == "no"))
+                with open(lp["pack"], "w", encoding="utf-8") as f:
+                    json.dump(pack, f, indent=2, ensure_ascii=False)
+                return self._send(200, json.dumps(
+                    {"pack": pack, "verdicts": verdicts}),
+                    "application/json")
+            except Exception as e:
+                return self._send(400, json.dumps({"error": str(e)}),
+                                  "application/json")
+        if url.path == "/api/build-scenes":
+            # Images (D26 edits-first) + SAM masks for chosen worlds.
+            # Synchronous: build one world first, the rest after.
+            try:
+                _needs_meta()
+                from app.builder import (PRESET_WORLDS, get_scene_image,
+                                         lesson_paths, valid_slug)
+                from app.sam_segment import segment_scene
+                body = json.loads(self.rfile.read(
+                    int(self.headers.get("Content-Length", 0))) or b"{}")
+                slug = body.get("slug", "")
+                if not valid_slug(slug):
+                    raise ValueError("bad lesson slug")
+                lp = lesson_paths(ROOT, slug)
+                with open(lp["pack"], encoding="utf-8") as f:
+                    pack = json.load(f)
+                worlds = [w for w in (body.get("worlds") or [])
+                          if w in PRESET_WORLDS]
+                if not worlds:
+                    raise ValueError("at least one world is required")
+                steps = [s for s in pack["steps"]
+                         if not body.get("steps")
+                         or s["step"] in body["steps"]]
+                client = get_client()
+                if client is None:
+                    raise ValueError("MODEL_API_KEY is missing")
+                t0 = time.monotonic()
+                out = []
+                for world in worlds:
+                    prior = None
+                    for s in steps:
+                        img, method = get_scene_image(
+                            client, lp, s, world, PRESET_WORLDS,
+                            prior_path=prior)
+                        prior = img
+                        sam = segment_scene(
+                            client, lp["dir"], lp["cache"], s["step"],
+                            s["tap_question"]["target_noun"], world)
+                        out.append({"step": s["step"], "world": world,
+                                    "image": os.path.basename(img),
+                                    "method": method, "sam": sam})
+                ms = int((time.monotonic() - t0) * 1000)
+                with open(LATENCY_LOG, "a", encoding="utf-8") as f:
+                    f.write(json.dumps({"route": "build-scenes", "ms": ms,
+                                        "cached": False}) + "\n")
+                return self._send(200, json.dumps({"scenes": out}),
+                                  "application/json")
+            except Exception as e:
+                return self._send(400, json.dumps({"error": str(e)}),
+                                  "application/json")
+        if url.path.startswith("/api/packs/"):
+            # Persist a reviewed pack (validated, version-bumped).
+            try:
+                from app.builder import (PACK_SCHEMA, lesson_paths,
+                                         valid_slug)
+                from app.contracts import validate
+                slug = url.path[len("/api/packs/"):]
+                if not valid_slug(slug):
+                    raise ValueError("bad lesson slug")
+                body = json.loads(self.rfile.read(
+                    int(self.headers.get("Content-Length", 0))) or b"{}")
+                pack = body.get("pack")
+                if not isinstance(pack, dict):
+                    raise ValueError("pack object required")
+                validate(PACK_SCHEMA, {"steps": pack.get("steps")})
+                lp = lesson_paths(ROOT, slug)
+                os.makedirs(lp["dir"], exist_ok=True)
+                if body.get("brief") is not None:
+                    with open(lp["brief"], "w", encoding="utf-8") as f:
+                        f.write(str(body["brief"]))
+                version = 1
+                if os.path.isfile(lp["pack"]):
+                    with open(lp["pack"], encoding="utf-8") as f:
+                        try:
+                            version = int(json.load(f).get("version", 0)) + 1
+                        except (ValueError, TypeError):
+                            version = 1
+                pack["slug"] = slug
+                pack["version"] = version
+                with open(lp["pack"], "w", encoding="utf-8") as f:
+                    json.dump(pack, f, indent=2, ensure_ascii=False)
+                return self._send(200, json.dumps(
+                    {"slug": slug, "version": version}),
                     "application/json")
             except Exception as e:
                 return self._send(400, json.dumps({"error": str(e)}),

@@ -86,13 +86,14 @@ def sentences(text):
     return [m.strip() for m in re.split(r"[.!?]+", text) if m.strip()]
 
 
-def glossary_hits(text):
+def glossary_hits(text, glossary=None):
     lowered = " " + re.sub(r"[^a-z ]", " ", text.lower()) + " "
     lowered = re.sub(r"\s+", " ", lowered)
-    return {g for g in GLOSSARY if f" {g} " in lowered}
+    terms = glossary if glossary is not None else GLOSSARY
+    return {g for g in terms if f" {g} " in lowered}
 
 
-def check_step(original, rewritten, profile):
+def check_step(original, rewritten, profile, glossary=None):
     """Return a list of violations (empty means pass)."""
     problems = []
     for field in ("caption", "simpler_caption"):
@@ -102,10 +103,10 @@ def check_step(original, rewritten, profile):
                 problems.append(f"{field}: longest-sentence breach ({n})")
             if n > profile["max_words_per_sentence"]:
                 problems.append(f"{field}: sentence too long ({n})")
-    new_terms = glossary_hits(rewritten["caption"]) | glossary_hits(
-        rewritten["simpler_caption"])
-    old_terms = glossary_hits(original["caption"]) | glossary_hits(
-        original["simpler_caption"])
+    new_terms = glossary_hits(rewritten["caption"], glossary) | glossary_hits(
+        rewritten["simpler_caption"], glossary)
+    old_terms = glossary_hits(original["caption"], glossary) | glossary_hits(
+        original["simpler_caption"], glossary)
     added = new_terms - old_terms
     if added:
         problems.append(f"new glossary terms added: {sorted(added)}")
@@ -123,11 +124,15 @@ def check_step(original, rewritten, profile):
     return problems
 
 
-def rewrite_captions(client, pack, profile, model=None, refresh=False):
+def rewrite_captions(client, pack, profile, model=None, refresh=False,
+                     lesson_dir=None, glossary=None):
     version = pack_version(pack)
     slug = (f"captions_{version}_{profile['max_words_per_sentence']}"
-            f"_{profile['new_terms_per_step']}.json")
-    cache_path = os.path.join(CACHE_DIR, slug)
+            f"_{profile['new_terms_per_step']}_"
+            f"{re.sub(r'[^a-z0-9]+', '-', (model or 'muse-spark-1.3')).strip('-')}.json")
+    cache_dir = (os.path.join(lesson_dir, ".cache") if lesson_dir
+                 else CACHE_DIR)
+    cache_path = os.path.join(cache_dir, slug)
     if os.path.exists(cache_path) and not refresh:
         with open(cache_path, encoding="utf-8") as f:
             return json.load(f), True
@@ -161,7 +166,8 @@ def rewrite_captions(client, pack, profile, model=None, refresh=False):
         last_problems = []
         for n, orig in originals.items():
             last_problems += [f"step{n}: {p}" for p in
-                              check_step(orig, by_step[n], profile)]
+                              check_step(orig, by_step[n], profile,
+                                         glossary)]
         if not last_problems:
             result = {"profile": profile, "pack_version": version,
                       "captions": out["captions"]}

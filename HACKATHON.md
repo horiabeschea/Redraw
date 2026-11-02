@@ -45,3 +45,11 @@
 - [x] Failure diagnostics instead of silent dead taps: tap errors, policy HTTP status, and missing-asset names land in the jury timeline; missing masks fall back to hand boxes
 - [x] Layout fixes: scene capped to the viewport, jury panel scrolls instead of stretching the page, bar buttons disable instead of vanishing, caption card holds its size
 - [x] uv packaging (pyproject + lockfile, fresh-env verified) and README setup/run docs with keys table and test commands
+
+# 29.10.2026 - Windows setup, parent report, lesson builder
+
+- [x] Setup now works on Windows too, not just Mac and Linux. There is a keys template to copy from, and the instructions show both shells. Checked that the keys actually load and the secret file stays out of git.
+- [x] Parents get a report: what the child mastered, where extra explanations helped, which worlds clicked, plus kind suggestions for home. It is built on demand behind the grown-ups gate, describes lesson moments rather than judging the kid, and falls back to a plain summary with no internet.
+- [x] Parents can now build a lesson on any topic: type the topic and the facts, the app writes the five steps and checks the science, the parent reads and fixes the wording, saves a version, and builds the pictures for the chosen worlds. New lessons appear in a picker. Everything was tested without spending credits.
+- [x] Two small fixes along the way: captions in Private mode now use the right model, and the picture-segmenting script loads without needing the network library.
+- [ ] Still open: a real end-to-end run with live models for the video, which needs keys and a working Python environment.

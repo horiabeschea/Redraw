@@ -8,7 +8,9 @@ Built for the Meta Global AI Developer Hackathon (Oct 27 – Nov 4, 2026). Every
 
 ## Setup and run
 
-Prerequisites: Python 3.10+ (developed on 3.12), [uv](https://docs.astral.sh/uv/), and API keys (below).
+Copy `.env.example` to `.env` and fill in real keys. Prerequisites: Python 3.10+ (developed on 3.12), [uv](https://docs.astral.sh/uv/), and API keys (below).
+
+macOS / Linux (bash):
 
 ```sh
 uv sync                                # creates .venv from uv.lock
@@ -16,9 +18,17 @@ set -a; source .env; set +a            # load keys into the environment
 .venv/bin/python src/app/server.py      # serves http://127.0.0.1:8000/
 ```
 
+Windows (PowerShell):
+
+```powershell
+uv sync
+Get-Content .env | Where-Object { $_ -match '^\s*[A-Za-z_]\w*\s*=' } | ForEach-Object { $k, $v = $_ -split '=', 2; Set-Item "env:$($k.Trim())" $v.Trim().Trim('"') }
+.venv\Scripts\python.exe src/app/server.py
+```
+
 Open the lesson at <http://127.0.0.1:8000/> and parent setup at <http://127.0.0.1:8000/setup>. Pass `--port` to change the port.
 
-Keys live in `.env` (gitignored, never committed):
+Keys live in `.env` (gitignored, never committed; `.env.example` is the template):
 
 | Variable | Used for | Required? |
 | --- | --- | --- |
@@ -26,7 +36,7 @@ Keys live in `.env` (gitignored, never committed):
 | `BASETEN_API_KEY` | Private-mode open-weights backend | Only for Private mode |
 | `REDRAW_BACKEND` | `meta` (default) or `baseten` | No |
 
-Checks (from the repo root):
+Checks (from the repo root), macOS / Linux:
 
 ```sh
 .venv/bin/python src/app/test_policy.py
@@ -34,10 +44,27 @@ Checks (from the repo root):
 .venv/bin/python src/app/check_contracts.py
 .venv/bin/python src/app/test_voice.py
 .venv/bin/python src/app/test_grading.py
+.venv/bin/python src/app/test_report.py
+.venv/bin/python src/app/test_builder.py
+node --check src/app/static/app.js
+```
+
+Same checks on Windows (PowerShell):
+
+```powershell
+.venv\Scripts\python.exe src/app/test_policy.py
+.venv\Scripts\python.exe src/app/run_replay.py --fallback-only
+.venv\Scripts\python.exe src/app/check_contracts.py
+.venv\Scripts\python.exe src/app/test_voice.py
+.venv\Scripts\python.exe src/app/test_grading.py
+.venv\Scripts\python.exe src/app/test_report.py
+.venv\Scripts\python.exe src/app/test_builder.py
 node --check src/app/static/app.js
 ```
 
 macOS note: the system Python ships no TLS trust roots; `certifi` is a declared prerequisite so `uv sync` fixes HTTPS with no extra setup.
+
+Windows note: PowerShell is the supported shell (`uv sync` works as-is). With Git Bash installed, the macOS / Linux commands work unchanged.
 
 ## Design principles
 
@@ -143,13 +170,15 @@ Planned to use **Muse Code** for development, have to check usage conditions and
 | Lesson pack (water cycle) | x (5 steps, cached, schema-validated) |
 | Scene pipeline + golden set | x (20 scenes; 10 SAM masks + 10 hand boxes) |
 | Lesson screen | x (static page, golden set; jury/child view toggle, grown-ups gate) |
-| Parent setup | x (`/setup`, localStorage only; Lesson Builder "Build" button disabled) |
+| Parent setup | x (`/setup`, localStorage only; Builder, review, report and lesson picker) |
 | Tap grading | x (geometry only, 20 hotspots tested) |
 | Adaptation policy + replay tests | x (20/20 live, cached) |
 | Live adaptation | x (server endpoint + page wired, optimistic fallback; latency: ~6.5s live, ~0ms cached) |
 | Voice input | partial (file endpoint + mapping 10/10; live mic test + realtime WS pending) |
 | "Why it changed" panel | x (timeline renders every decision + latency) |
 | Say-it check | x (Spark grading wired; proof 47/50, never "wrong") |
+| Parent report | x (Spark summary + offline template; on-demand from /setup behind the grown-ups gate) |
+| Lesson Builder | x (topic + facts → Wonder core + verifier → parent review → versioned pack; scenes via D26 edits-first + SAM; proof topic pending) |
 | Private mode (open weights) | x (Baseten connector; toggle in parent setup; policy 8.3s, say-it 5.4s, strict schemas accepted) |
 
 ## Spec decisions (Final)
@@ -165,6 +194,8 @@ Accepted by the owner alongside D1–D26. D27–D32 settled as written.
 - D30 (settled): a correct tap explains with the step's world-analogy sentence instead of just naming the part; authored per-part explanations stay stretch.
 - D31 (settled): the why-timeline is collapsed in child view and always open in jury view.
 - D32 (settled): this iteration ships D27–D31 together with no new model calls; image-edit work stays out until its own go.
+- D33 (settled): parent report is on-demand from /setup behind the existing grown-ups gate (no new route, no new gate); input is aggregate-only (counts, mastered list, profile — no transcripts), at most one Spark call per request with an offline template fallback; language describes lesson moments, never the child.
+- D34 (settled): Lesson Builder ships the agreed layers — Wonder core (analogies for all six preset worlds, one call, checked once) + verifier, versioned packs under lessons/&lt;slug&gt;, parent review with re-check on save, scenes for setup-chosen worlds only (D26 edits-first, fallback recorded in meta.json). Custom-world analogies and all build endpoints require Standard mode; Private mode keeps policy/say-it/captions on the open model. Steps stay fixed at 5 per topic.
 
 - D1 (settled): settled spec/plan decisions are recorded here in `README.md`.
 - D2 (settled): solo build. No teammate; onboarding cost exceeds Demo gain with 9 days left.

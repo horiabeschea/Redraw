@@ -24,8 +24,6 @@ import struct
 import sys
 import zlib
 
-from openai import OpenAI
-
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.abspath(__file__))))
 sys.path.insert(0, os.path.join(ROOT, "src"))
@@ -133,6 +131,7 @@ def main(argv=None):
     args = ap.parse_args(argv)
     with open(os.path.join(LESSON_DIR, "pack.json"), encoding="utf-8") as f:
         pack = json.load(f)
+    from openai import OpenAI
     client = OpenAI(base_url="https://api.meta.ai/v1",
                     api_key=os.environ["MODEL_API_KEY"])
     for s in pack["steps"]:
@@ -143,75 +142,84 @@ def main(argv=None):
         for world in WORLDS:
             if args.world is not None and world != args.world:
                 continue
-            d = os.path.join(LESSON_DIR, "scenes", f"step{n}", world)
-            img_path = os.path.join(d, args.image)
-            if not os.path.exists(img_path):
-                if args.image == "image.webp":
-                    legacy = os.path.join(d, "image.png")
-                    if os.path.exists(legacy):
-                        img_path = legacy
-            if not os.path.exists(img_path):
-                print(f"skip step{n}/{world}: no {args.image}")
-                continue
-            iw, ih = webp_size(img_path)
-            concept = args.concept or noun
-            slug = re.sub(r"[^a-z0-9]+", "_", concept.lower()).strip("_")
-            tag = os.path.splitext(os.path.basename(img_path))[0]
-            cache_path = os.path.join(
-                CACHE_DIR, f"sam_{tag}_step{n}_{world}_{noun}_{slug}.json")
-            if not args.refresh and tag == "image":
-                for legacy_name in [
-                    f"sam_step{n}_{world}_{noun}_{slug}.json",
-                    f"sam_step{n}_{world}_{noun}.json",
-                ]:
-                    legacy = os.path.join(CACHE_DIR, legacy_name)
-                    if (legacy != cache_path and os.path.exists(legacy)
-                            and not os.path.exists(cache_path)):
-                        os.rename(legacy, cache_path)
-            text = segment_one(client, img_path, concept, cache_path,
-                               refresh=args.refresh)
-            records = parse_records(text)
-            print(f"step{n}/{world} '{noun}': {len(records)} match(es)")
-            best, best_area = None, -1
-            for obj_id, box, mh, mw, payload in records:
-                enc = "lossless" if payload.startswith("~") else "one_bit"
-                raster = decode_mask_to_raster(SegmentationMask(
-                    encoding=enc, payload=payload, width=mw, height=mh))
-                area = sum(raster)
-                if area > best_area:
-                    best, best_area = (obj_id, box, mh, mw, raster), area
-            meta_path = os.path.join(d, "meta.json")
-            with open(meta_path, encoding="utf-8") as f:
-                meta = json.load(f)
-            masks = meta.get(args.mask_key, {})
-            existing = masks.get(noun)
-            if best is None:
-                if existing and existing.get("box"):
-                    print(f"  kept existing {existing.get('source')} box")
-                    continue
-                masks[noun] = {"source": "sam-3.1", "matches": 0,
-                               "mask_png": None}
-            else:
-                obj_id, box, mh, mw, raster = best
-                png_name = (f"mask_{noun}.png"
-                            if tag == "image" else f"{tag}_mask_{noun}.png")
-                write_png_gray(os.path.join(d, png_name),
-                               bytes(255 if v else 0 for v in raster), mw, mh)
-                masks[noun] = {
-                    "source": "sam-3.1", "matches": len(records),
-                    "object_id": obj_id, "mask_png": png_name,
-                    "raster": [mh, mw], "image": [iw, ih],
-                    "box": {"left": int(box["x1"]), "top": int(box["y1"]),
-                            "right": int(box["x2"]) + 1,
-                            "bottom": int(box["y2"]) + 1},
-                    "coverage": best_area / (mw * mh),
-                }
-                print(f"  box={masks[noun]['box']} raster={mw}x{mh} "
-                      f"coverage={masks[noun]['coverage']:.2f}")
-            meta[args.mask_key] = masks
-            with open(meta_path, "w", encoding="utf-8") as f:
-                json.dump(meta, f, indent=2)
+            print(segment_scene(client, LESSON_DIR, CACHE_DIR, n, noun,
+                                world, image=args.image,
+                                mask_key=args.mask_key, refresh=args.refresh,
+                                concept=args.concept))
     print("done.")
+
+
+def segment_scene(client, lesson_dir, cache_dir, step_n, noun, world,
+                  image="image.webp", mask_key="masks", refresh=False,
+                  concept=None):
+    """Segment one scene's tap target. Returns a one-line status string."""
+    d = os.path.join(lesson_dir, "scenes", f"step{step_n}", world)
+    img_path = os.path.join(d, image)
+    if not os.path.exists(img_path):
+        if image == "image.webp":
+            legacy = os.path.join(d, "image.png")
+            if os.path.exists(legacy):
+                img_path = legacy
+    if not os.path.exists(img_path):
+        return f"skip step{step_n}/{world}: no {image}"
+    iw, ih = webp_size(img_path)
+    concept = concept or noun
+    slug = re.sub(r"[^a-z0-9]+", "_", concept.lower()).strip("_")
+    tag = os.path.splitext(os.path.basename(img_path))[0]
+    cache_path = os.path.join(
+        cache_dir, f"sam_{tag}_step{step_n}_{world}_{noun}_{slug}.json")
+    if not refresh and tag == "image":
+        for legacy_name in [
+            f"sam_step{step_n}_{world}_{noun}_{slug}.json",
+            f"sam_step{step_n}_{world}_{noun}.json",
+        ]:
+            legacy = os.path.join(cache_dir, legacy_name)
+            if (legacy != cache_path and os.path.exists(legacy)
+                    and not os.path.exists(cache_path)):
+                os.rename(legacy, cache_path)
+    text = segment_one(client, img_path, concept, cache_path,
+                       refresh=refresh)
+    records = parse_records(text)
+    best, best_area = None, -1
+    for obj_id, box, mh, mw, payload in records:
+        enc = "lossless" if payload.startswith("~") else "one_bit"
+        raster = decode_mask_to_raster(SegmentationMask(
+            encoding=enc, payload=payload, width=mw, height=mh))
+        area = sum(raster)
+        if area > best_area:
+            best, best_area = (obj_id, box, mh, mw, raster), area
+    meta_path = os.path.join(d, "meta.json")
+    with open(meta_path, encoding="utf-8") as f:
+        meta = json.load(f)
+    masks = meta.get(mask_key, {})
+    existing = masks.get(noun)
+    if best is None:
+        if existing and existing.get("box"):
+            return (f"step{step_n}/{world} '{noun}': kept existing "
+                    f"{existing.get('source')} box")
+        masks[noun] = {"source": "sam-3.1", "matches": 0, "mask_png": None}
+        status = "no match"
+    else:
+        obj_id, box, mh, mw, raster = best
+        png_name = (f"mask_{noun}.png"
+                    if tag == "image" else f"{tag}_mask_{noun}.png")
+        write_png_gray(os.path.join(d, png_name),
+                       bytes(255 if v else 0 for v in raster), mw, mh)
+        masks[noun] = {
+            "source": "sam-3.1", "matches": len(records),
+            "object_id": obj_id, "mask_png": png_name,
+            "raster": [mh, mw], "image": [iw, ih],
+            "box": {"left": int(box["x1"]), "top": int(box["y1"]),
+                    "right": int(box["x2"]) + 1,
+                    "bottom": int(box["y2"]) + 1},
+            "coverage": best_area / (mw * mh),
+        }
+        status = (f"box={masks[noun]['box']} raster={mw}x{mh} "
+                  f"coverage={masks[noun]['coverage']:.2f}")
+    meta[mask_key] = masks
+    with open(meta_path, "w", encoding="utf-8") as f:
+        json.dump(meta, f, indent=2)
+    return f"step{step_n}/{world} '{noun}': {len(records)} match(es); {status}"
 
 
 if __name__ == "__main__":

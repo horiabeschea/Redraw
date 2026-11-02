@@ -61,6 +61,18 @@ const state = { pack: null, step: 0, world: null, simple: false, simpleImg: fals
 
 const $ = (id) => document.getElementById(id);
 
+function packSlug() {
+  try { return localStorage.getItem("redraw.pack") || "water-cycle"; }
+  catch (err) { return "water-cycle"; }
+}
+function assetBase() {
+  return `/assets/${(state.pack && state.pack.slug) || packSlug()}`;
+}
+function worldLabel(w) {
+  return WORLD_LABELS[w] ||
+    String(w).replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
 function loadSettings() {
   try { return JSON.parse(localStorage.getItem("redraw.settings")) || {}; }
   catch (err) { return {}; }
@@ -68,12 +80,16 @@ function loadSettings() {
 
 function availableWorlds() {
   const picked = (settings.worlds || []).map((w) => SETUP_WORLDS[w]).filter(Boolean);
+  const packWorlds = (state.pack && state.pack.worlds) || [];
+  const have = picked.filter((w) => !packWorlds.length || packWorlds.includes(w));
+  if (have.length) return have;
+  if (packWorlds.length) return packWorlds;
   return picked.length ? picked : ["dinosaur_valley", "block_world"];
 }
 
 function syncWorldPills() {
   document.querySelectorAll("#worlds .pill").forEach((b) => {
-    b.setAttribute("aria-pressed", b.textContent === WORLD_LABELS[state.world]);
+    b.setAttribute("aria-pressed", b.textContent === worldLabel(state.world));
   });
 }
 
@@ -84,13 +100,13 @@ async function ensureWorld(s) {
   for (const w of worldChain()) {
     try {
       const meta = await (await fetch(
-        `/assets/step${s.step}/${w}/meta.json`)).json();
+        `${assetBase()}/step${s.step}/${w}/meta.json`)).json();
       if (meta && meta[variant]) {
         if (w !== state.world) {
           state.world = w;
           syncWorldPills();
           log("fallback", "World fallback",
-            `This step was missing here, so ${WORLD_LABELS[w]} is showing.`,
+            `This step was missing here, so ${worldLabel(w)} is showing.`,
             "world → fallback", "rules");
         }
         return;
@@ -100,10 +116,11 @@ async function ensureWorld(s) {
 }
 
 async function init() {
-  state.pack = await (await fetch("/api/pack")).json();
+  state.pack = await (await fetch(`/api/pack?topic=${packSlug()}`)).json();
   try {
     const q = new URLSearchParams({ level: settings.level || "medium",
-                                    terms: String(settings.terms || 1) });
+                                    terms: String(settings.terms || 1),
+                                    topic: packSlug() });
     const out = await (await fetch(`/api/captions?${q}`)).json();
     state.captions = Object.fromEntries(
       out.captions.map((c) => [c.step, c]));
@@ -120,7 +137,7 @@ async function init() {
   list.forEach((w) => {
     const b = document.createElement("button");
     b.className = "pill";
-    b.textContent = WORLD_LABELS[w];
+    b.textContent = worldLabel(w);
     b.setAttribute("aria-pressed", w === state.world);
     b.onclick = () => {
       // A tap at lesson start declares the session primary; later taps
@@ -250,16 +267,16 @@ async function render() {
     img.dataset.fb = "1";
     const next = availableWorlds().find((w) => w !== state.world);
     if (!next) { img.onerror = null; return; }
-    const missing = `${imgName()} for step ${s.step} in ${WORLD_LABELS[state.world]}`;
+    const missing = `${imgName()} for step ${s.step} in ${worldLabel(state.world)}`;
     state.world = next;
     syncWorldPills();
     log("fallback", "World fallback",
-      `No ${missing}; showing ${WORLD_LABELS[next]} instead.`,
+      `No ${missing}; showing ${worldLabel(next)} instead.`,
       "world → fallback", "rules");
-    img.src = `/assets/step${s.step}/${next}/${imgName()}`;
+    img.src = `${assetBase()}/step${s.step}/${next}/${imgName()}`;
   };
-  img.src = `/assets/step${s.step}/${state.world}/${imgName()}`;
-  img.alt = `${WORLD_LABELS[state.world]}: ${s.analogies[state.world] || s.caption}`;
+  img.src = `${assetBase()}/step${s.step}/${state.world}/${imgName()}`;
+  img.alt = `${worldLabel(state.world)}: ${s.analogies[state.world] || s.caption}`;
   await img.decode().catch(() => {});
   const parts = captionSentences();
   if (state.sent != null && state.sent >= parts.length) state.sent = null;
@@ -340,7 +357,7 @@ async function hotspot() {
   const s = step();
   const variant = state.simpleImg ? "masks_simpler" : "masks";
   const meta = await (await fetch(
-    `/assets/step${s.step}/${state.world}/meta.json`)).json();
+    `${assetBase()}/step${s.step}/${state.world}/meta.json`)).json();
   const raw = ((meta || {})[variant] || {})[s.tap_question.target_noun];
   if (!raw || !raw.box)
     throw new Error(`no hotspot ${s.tap_question.target_noun} in ` +
@@ -353,7 +370,7 @@ async function maskPixels(world, stepN, png) {
   const key = `${stepN}/${world}/${png}`;
   if (!state.masks[key]) {
     const img = new Image();
-    img.src = `/assets/step${stepN}/${world}/${png}`;
+    img.src = `${assetBase()}/step${stepN}/${world}/${png}`;
     await img.decode();
     const cv = document.createElement("canvas");
     cv.width = img.naturalWidth; cv.height = img.naturalHeight;
@@ -476,7 +493,7 @@ function prefetchNext() {
   if (n >= state.pack.steps.length) return;
   ["image.webp", "simpler.webp"].forEach((f) => {
     const im = new Image();
-    im.src = `/assets/step${state.pack.steps[n].step}/${state.world}/${f}`;
+    im.src = `${assetBase()}/step${state.pack.steps[n].step}/${state.world}/${f}`;
   });
 }
 
@@ -496,7 +513,7 @@ async function exploreTap(e) {
   let meta = null;
   try {
     meta = await (await fetch(
-      `/assets/step${s.step}/${state.world}/meta.json`)).json();
+      `${assetBase()}/step${s.step}/${state.world}/meta.json`)).json();
   } catch (err) { return showVerdict("Keep looking around.", false); }
   const variant = state.simpleImg ? "masks_simpler" : "masks";
   const zone = (meta || {})[variant] || {};
@@ -1013,9 +1030,32 @@ function wireMic() {
 }
 
 function log(signalKind, title, reason, decision, by) {
-  state.timeline.unshift({ chip: SIGNAL_LABELS[signalKind] || signalKind,
-    step: `Step ${step().step}`, title, reason, decision, by });
+  state.timeline.unshift({ kind: signalKind,
+    chip: SIGNAL_LABELS[signalKind] || signalKind,
+    step: `Step ${step().step}`, title, reason, decision, by,
+    world: state.world });
   renderTimeline();
+  saveSession();
+}
+
+/* Bounded session snapshot for the parent report (/setup reads it).
+ * Local only: never sent anywhere except the on-demand report call. */
+const SESSION_KEY = "redraw.session";
+function saveSession() {
+  try {
+    const concepts = {};
+    (state.pack ? state.pack.steps : []).forEach((s) => {
+      concepts[s.step] = s.step_name;
+    });
+    localStorage.setItem(SESSION_KEY, JSON.stringify({
+      saved_at: Date.now(),
+      current_step: state.step + 1,
+      mastered: state.mastered,
+      concepts,
+      entries: state.timeline.slice(0, 120).map((t) => ({
+        kind: t.kind, step: t.step, title: t.title, world: t.world })),
+    }));
+  } catch (err) { /* private window */ }
 }
 
 function renderTimeline() {
