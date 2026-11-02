@@ -56,14 +56,13 @@
 
 # 02.11.2026 - Demo video takes
 
-- [x] Rebuilt .venv on Python 3.13 (openai 3.39 + certifi per lockfile); full offline suite green
-- [x] Fixed caption fallback-cache poisoning (offline/failed rewrites never cached) + regression test (builder: 66 assertions)
-- [x] Proved every model path live: policy 3.3s, say-it ok/not_yet, report 3.7s, volcanoes Wonder build 107s, all verifier verdicts yes
-- [x] Generated 3 Pixar-style key frames (muse-image-1.0) + 2 app screenshots into video_frames/
-- [x] Saved src/record_takes.py: 9 scripted Playwright takes (all passing), run with the server up
-- [ ] Still open: live-mic transcript take needs the deployed WS proxy; final 3:00 assembly
-
-- [x] Takes v2: visible cursor + tap captions + glide motion (src/record_takes.py); 9/9 passing
-- [x] Two 5s Pixar clips (page-push, cloud-tap): 3 Muse Image frames each, zoompan + xfade via ffmpeg
-- [x] Sidecar .srt captions for all takes and clips (toggle at edit time)
-- [x] Portable ffmpeg 9.0.2 installed user-level for assembly work
+- [x] The Python environment broke, so it was rebuilt from scratch and every offline check passes again.
+- [x] Found and fixed a caching bug along the way: with no internet, the app saved the plain backup text over the good slot, so the live rewrite never got another chance. Backup text is never saved any more, and a test guards it.
+- [x] Ran every model path for real: the tutor adapts in about 3 seconds, spoken answers are graded kindly, the parent report takes about 4 seconds, and a full volcanoes lesson builds in under 2 minutes with all five science checks passing.
+- [x] Made three cozy cartoon key frames for the human moments (a hand pushing the page aside, a finger tapping the tablet, a parent and child watching together) plus two screenshots of the real app, all in video_frames/.
+- [x] Saved a script that records the demo by itself: it opens the app, presses the buttons, taps the lake and types the volcanoes facts. Nine takes, all passing.
+- [x] Second pass on the takes: you can now see the cursor travel, every tap carries a short caption, and the camera drifts instead of sitting still.
+- [x] Two short cartoon clips for the 3D scenes: three generated frames each, stitched with a slow push-in and soft crossfades. One page-turn trio came out inconsistent and was regenerated.
+- [x] Captions live in separate subtitle files next to each video, so they can be switched on later instead of being burned in.
+- [x] Installed a full video tool for cutting everything together.
+- [ ] Still open: the live-microphone shot needs the deployed app; the final 3-minute cut.
