@@ -8,7 +8,7 @@ simpler caption) from the lesson core for a setup profile:
 
 Code checks (no second model): sentence word limits, glossary-term count
 never worse than the core and within the brief cap, and the step's key
-term still present. Retry once, then fall back to the cached core text.
+term still present. Retry once, then fall back to the core text (never cached, so the next call retries live).
 
 Cache: .cache/captions_<pack-version>_<level>_<terms>.json, so reruns and
 replays cost nothing. The lesson version is a hash of the pack core, so a
@@ -154,8 +154,8 @@ def rewrite_captions(client, pack, profile, model=None, refresh=False,
                   "captions": [{"step": s["step"], "caption": s["caption"],
                                 "simpler_caption": s["simpler_caption"]}
                                for s in pack["steps"]]}
-        with open(cache_path, "w", encoding="utf-8") as f:
-            json.dump(result, f, indent=2)
+        # Fallback text is never cached: the next call must
+        # retry live instead of serving a failure snapshot.
         return result, False
     last_problems = []
     for _attempt in (1, 2):
@@ -180,6 +180,6 @@ def rewrite_captions(client, pack, profile, model=None, refresh=False,
               "captions": [{"step": s["step"], "caption": s["caption"],
                             "simpler_caption": s["simpler_caption"]}
                            for s in pack["steps"]]}
-    with open(cache_path, "w", encoding="utf-8") as f:
-        json.dump(result, f, indent=2)
+    # Fallback text is never cached: the next call must
+    # retry live instead of serving a failure snapshot.
     return result, False

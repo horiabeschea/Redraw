@@ -218,3 +218,8 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+.tmp/
+.pip-cache/
+
+# Video
+video_frames/

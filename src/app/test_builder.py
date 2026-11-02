@@ -286,6 +286,46 @@ def test_captions_layer():
     print("captions ok: rewrite, cache, checks, version bump")
 
 
+def test_captions_offline_never_caches():
+    profile = profile_for("short", 1)
+    glossary = glossary_for(FAKE_PACK)
+    tmp = tempfile.mkdtemp()
+    try:
+        ldir = os.path.join(tmp, "lessons", "volcanoes")
+        os.makedirs(os.path.join(ldir, ".cache"))
+        out, hit = rewrite_captions(
+            None, FAKE_PACK, profile, lesson_dir=ldir,
+            glossary=glossary)
+        check(out.get("fallback") and out.get("offline") and not hit,
+              "offline text is a fallback, not a hit")
+        check(os.listdir(os.path.join(ldir, ".cache")) == [],
+              "offline fallback writes no cache file")
+        real = backends.create_structured
+
+        def always_bad(client, model, prompt, schema, name,
+                       reasoning_effort="low"):
+            return {"captions": [
+                {"step": s["step"],
+                 "caption": " ".join(["lava"] * 30),
+                 "simpler_caption": s["simpler_caption"]}
+                for s in FAKE_PACK["steps"]]}, True
+
+        backends.create_structured = always_bad
+        try:
+            out2, hit2 = rewrite_captions(
+                "client", FAKE_PACK, profile, lesson_dir=ldir,
+                glossary=glossary)
+        finally:
+            backends.create_structured = real
+        check(out2.get("fallback") and not hit2,
+              "exhausted retries fall back")
+        check(os.listdir(os.path.join(ldir, ".cache")) == [],
+              "failed rewrite writes no cache file")
+    finally:
+        shutil.rmtree(tmp)
+    print("captions ok: offline and failed rewrites never poison the cache")
+
+
 def test_scene_images():
     tmp = tempfile.mkdtemp()
     try:
@@ -448,6 +488,7 @@ def main():
     test_build_core_rejects_short()
     test_glossary()
     test_captions_layer()
+    test_captions_offline_never_caches()
     test_scene_images()
     test_segment_scene()
     test_custom_analogy()

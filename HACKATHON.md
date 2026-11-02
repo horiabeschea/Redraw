@@ -53,3 +53,17 @@
 - [x] Parents can now build a lesson on any topic: type the topic and the facts, the app writes the five steps and checks the science, the parent reads and fixes the wording, saves a version, and builds the pictures for the chosen worlds. New lessons appear in a picker. Everything was tested without spending credits.
 - [x] Two small fixes along the way: captions in Private mode now use the right model, and the picture-segmenting script loads without needing the network library.
 - [ ] Still open: a real end-to-end run with live models for the video, which needs keys and a working Python environment.
+
+# 02.11.2026 - Demo video takes
+
+- [x] Rebuilt .venv on Python 3.13 (openai 3.39 + certifi per lockfile); full offline suite green
+- [x] Fixed caption fallback-cache poisoning (offline/failed rewrites never cached) + regression test (builder: 66 assertions)
+- [x] Proved every model path live: policy 3.3s, say-it ok/not_yet, report 3.7s, volcanoes Wonder build 107s, all verifier verdicts yes
+- [x] Generated 3 Pixar-style key frames (muse-image-1.0) + 2 app screenshots into video_frames/
+- [x] Saved src/record_takes.py: 9 scripted Playwright takes (all passing), run with the server up
+- [ ] Still open: live-mic transcript take needs the deployed WS proxy; final 3:00 assembly
+
+- [x] Takes v2: visible cursor + tap captions + glide motion (src/record_takes.py); 9/9 passing
+- [x] Two 5s Pixar clips (page-push, cloud-tap): 3 Muse Image frames each, zoompan + xfade via ffmpeg
+- [x] Sidecar .srt captions for all takes and clips (toggle at edit time)
+- [x] Portable ffmpeg 9.0.2 installed user-level for assembly work

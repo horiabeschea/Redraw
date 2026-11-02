@@ -23,3 +23,5 @@ There is no Git history from which to infer a commit convention. Write concise, 
 ## Configuration & Security
 
 Do not commit credentials, private keys, or local secrets. Document required environment variables with safe example values, and keep machine-specific configuration out of version control.
+
+- video_frames/: demo-video review assets (Muse Image key frames, app screenshots, scripted .webm takes, VO fixes). Regenerable; not part of the app.

@@ -1,0 +1,146 @@
+{
+  "topic": "volcanoes",
+  "slug": "volcanoes",
+  "version": 1,
+  "worlds": [
+    "dinosaur_valley",
+    "block_world"
+  ],
+  "steps": [
+    {
+      "analogies": {
+        "block_world": "Like blocks hidden under blocky hills, magma stays hidden under the ground. It is hot melted rock.",
+        "dinosaur_valley": "Like warm lake water held low in the valley, magma is hot. Magma stays hidden under the ground."
+      },
+      "caption": "Hot melted rock sits under the ground. This is magma, like hot soup underground.",
+      "correction": "Magma stays under the ground, hidden below.",
+      "image_prompts": {
+        "block_world": "Change only the Underground Window. Add one large, separate, unobstructed pool of soft orange melted rock there. Keep the volcano large in Centre Hill Place.",
+        "dinosaur_valley": "Change only the Underground Window. Add one large, separate, unobstructed pool of soft orange melted rock there. Keep the volcano large in Centre Hill Place."
+      },
+      "key_terms": [
+        "magma"
+      ],
+      "misconception": "Children may think magma sits on top of the ground.",
+      "say_it": {
+        "answer_key": "Magma is hot melted rock. Magma is under the ground.",
+        "prompt": "Tell me about the hot rock underground."
+      },
+      "simpler_caption": "Hot rock sits underground.",
+      "step": 1,
+      "step_name": "magma_underground",
+      "tap_question": {
+        "prompt": "Tap the big pool.",
+        "target_noun": "pool"
+      }
+    },
+    {
+      "analogies": {
+        "block_world": "Like water reaching the edge of the block lake, magma reaches the surface. At the surface, it is lava.",
+        "dinosaur_valley": "Like lake water reaching the shore, magma reaches the surface. At the surface, it is lava."
+      },
+      "caption": "Magma moves up to the surface. This surface magma is lava, like hot soup outside.",
+      "correction": "Lava is magma that reaches the surface.",
+      "image_prompts": {
+        "block_world": "Change only Centre Hill Place and Front Clearing. Add one large, separate, unobstructed lava stream down the volcano. Keep the volcano large and calm.",
+        "dinosaur_valley": "Change only Centre Hill Place and Front Clearing. Add one large, separate, unobstructed lava stream down the volcano. Keep the volcano large and calm."
+      },
+      "key_terms": [
+        "lava"
+      ],
+      "misconception": "Children may think lava starts as a different rock.",
+      "say_it": {
+        "answer_key": "Lava starts as magma. Lava is magma at the surface.",
+        "prompt": "Tell me how magma becomes lava."
+      },
+      "simpler_caption": "Magma moves outside.",
+      "step": 2,
+      "step_name": "lava_at_surface",
+      "tap_question": {
+        "prompt": "Tap the bright lava.",
+        "target_noun": "lava"
+      }
+    },
+    {
+      "analogies": {
+        "block_world": "Like dust and air puffing from tumbling blocks, ash and gas puff out. Lava comes out with them.",
+        "dinosaur_valley": "Like a soft puff lifting dust and air, an eruption lifts ash and gas. Lava comes out too."
+      },
+      "caption": "A volcano shoots out lava, ash, and gas. This shooting out is an eruption, like bursting bubbles.",
+      "correction": "Lava, ash, and gas all come out together.",
+      "image_prompts": {
+        "block_world": "Change only Centre Hill Place. Add soft ash, gentle gas wisps, and one large lava stream from the volcano. Keep the volcano large, separate, and unobstructed.",
+        "dinosaur_valley": "Change only Centre Hill Place. Add soft ash, gentle gas wisps, and one large lava stream from the volcano. Keep the volcano large, separate, and unobstructed."
+      },
+      "key_terms": [
+        "eruption"
+      ],
+      "misconception": "Children may think only lava comes out.",
+      "say_it": {
+        "answer_key": "A volcano erupts. Lava, ash, and gas come out.",
+        "prompt": "Tell me what comes out."
+      },
+      "simpler_caption": "Hot rock shoots out. Grey dust shoots out.",
+      "step": 3,
+      "step_name": "volcano_erupts",
+      "tap_question": {
+        "prompt": "Tap the big volcano.",
+        "target_noun": "volcano"
+      }
+    },
+    {
+      "analogies": {
+        "block_world": "Like one hard block sitting still, cooled lava is hard. It has become solid rock.",
+        "dinosaur_valley": "Like a hard stone beside the lake, cooled lava is hard. It has become solid rock."
+      },
+      "caption": "Hot lava gets cold and hard. This hard rock is solid rock, like a stone.",
+      "correction": "Lava cools and turns into solid rock.",
+      "image_prompts": {
+        "block_world": "Change only Front Clearing. Make the lava end into one large, separate, unobstructed rock. Keep all named places in the same positions.",
+        "dinosaur_valley": "Change only Front Clearing. Make the lava end into one large, separate, unobstructed rock. Keep all named places in the same positions."
+      },
+      "key_terms": [
+        "solid rock"
+      ],
+      "misconception": "Children may think lava stays hot and soft forever.",
+      "say_it": {
+        "answer_key": "Lava cools down. Cooled lava becomes solid rock.",
+        "prompt": "Tell me what cooled lava becomes."
+      },
+      "simpler_caption": "Hot lava gets hard.",
+      "step": 4,
+      "step_name": "lava_cools_to_rock",
+      "tap_question": {
+        "prompt": "Tap the big rock.",
+        "target_noun": "rock"
+      }
+    },
+    {
+      "analogies": {
+        "block_world": "Blocks can tumble fast or slide slow. Eruptions can explode fast or flow gently too.",
+        "dinosaur_valley": "Lake water can splash fast or trickle slow. Eruptions can explode fast or flow gently too."
+      },
+      "caption": "Some volcanoes shoot out fast and strong. Others flow out slow and soft. These bursts and flows are eruptions, like pours.",
+      "correction": "Some eruptions explode, and others flow gently.",
+      "image_prompts": {
+        "block_world": "Change only Centre Hill Place and Far Hill Place. Show one soft fast puff at Far Hill Place and one slow lava flow at the large volcano. Keep the volcano large, separate, and unobstructed.",
+        "dinosaur_valley": "Change only Centre Hill Place and Far Hill Place. Show one soft fast puff at Far Hill Place and one slow lava flow at the large volcano. Keep the volcano large, separate, and unobstructed."
+      },
+      "key_terms": [
+        "eruption"
+      ],
+      "misconception": "Children may think all volcanoes erupt the same way.",
+      "say_it": {
+        "answer_key": "Some eruptions explode. Other eruptions flow gently.",
+        "prompt": "Tell me two eruption ways."
+      },
+      "simpler_caption": "Some burst out fast. Some flow out slow.",
+      "step": 5,
+      "step_name": "eruption_styles",
+      "tap_question": {
+        "prompt": "Tap the big volcano.",
+        "target_noun": "volcano"
+      }
+    }
+  ]
+}
