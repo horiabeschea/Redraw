@@ -164,6 +164,10 @@ def main():
                 " return i && i.complete && i.naturalWidth > 0; })()",
                 timeout=30000)
 
+        def open_jury(page):
+            page.click("#jurytoggle")
+            time.sleep(1)
+
         def take(name, url, actions, seed_session=False):
             if only and name not in only:
                 return
@@ -194,6 +198,7 @@ def main():
             wait_ready(page)
             page.wait_for_function(
                 "document.getElementById('caption').textContent.length > 10")
+            open_jury(page)
             x, y = center_of(page, "#scene")
             glide(page, x, y, steps=20)
             page.evaluate("window.__takeSay('Step 1, dinosaur valley', 2200)")
@@ -203,19 +208,19 @@ def main():
 
         def setup_tour(page):
             page.wait_for_selector("#modes", state="visible")
-            time.sleep(1)
-            for y in (400, 900, 1400, 400):
+            time.sleep(2)
+            x, _ = pos
+            for y in range(0, 1450, 100):
                 page.evaluate("window.scrollTo(0, %d)" % y)
-                x, _ = pos
-                glide(page, x, 400, steps=8, pause=0.05)
-                time.sleep(0.8)
-            page.evaluate("window.scrollTo(0, 0)")
-            time.sleep(1)
+                glide(page, x, 400, steps=3, pause=0.05)
+                time.sleep(0.12)
+            time.sleep(3)
         take("take2_setup_tour", BASE + "/setup", setup_tour)
 
         def stuck(page):
             wait_ready(page)
             time.sleep(1)
+            open_jury(page)
             click_sel(page, 'button.signal[data-signal="stuck"]',
                       "I don't get it — explain it simpler")
             # Jury panel is hidden in child view: wait attached, not visible.
@@ -226,7 +231,7 @@ def main():
 
         def tap_lake(page):
             wait_ready(page)
-            time.sleep(1)
+            open_jury(page)
             click_sel(page, "#gotit", "Got it — quiz me")
             time.sleep(1)
             box = page.evaluate("""() => {
@@ -248,6 +253,7 @@ def main():
         def bored(page):
             wait_ready(page)
             time.sleep(1)
+            open_jury(page)
             click_sel(page, 'button.signal[data-signal="bored"]',
                       "Boring! — give me a challenge")
             page.wait_for_selector("#timeline li:not(.empty)",
@@ -258,12 +264,11 @@ def main():
         def timeline(page):
             wait_ready(page)
             time.sleep(1)
+            open_jury(page)
             click_sel(page, 'button.signal[data-signal="stuck"]',
                       "I don't get it — explain it simpler")
             page.wait_for_selector("#timeline li:not(.empty)",
                                    state="attached", timeout=45000)
-            click_sel(page, "#jurytoggle",
-                      "Jury overlay — why it changed")
             time.sleep(1)
             page.wait_for_selector("#timeline li:not(.empty)",
                                    state="visible", timeout=15000)

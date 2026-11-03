@@ -66,3 +66,14 @@
 - [x] Captions live in separate subtitle files next to each video, so they can be switched on later instead of being burned in.
 - [x] Installed a full video tool for cutting everything together.
 - [ ] Still open: the live-microphone shot needs the deployed app; the final 3-minute cut.
+
+- [x] Full assembly: jury always open on lesson takes, one slow setup drift, story-driven build (src/assemble_movie.py) into video_frames/movie_cut1.mp4 (1:38, captions burned in with shadow) plus the same cues as movie_cut1.srt.
+
+- [x] Rebuilt everything after the frames folder was cleared: all 9 takes re-recorded, all 7 cartoon frames regenerated, both clips re-stitched.
+- [x] The assembly script reads the story file itself now, so every one of its 41 sentences lands in the captions. Still 01 opens the movie, still 03 closes it, both with a slow push-in and fades.
+- [x] Fixed a real assembly bug on the way: the opening still stretched over the whole movie. Single frames in, correct lengths out.
+- [x] Fresh subtitles next to every take and clip, all timings checked.
+- [x] New cut movie_cut3.mp4 (2:28, 33 cues) + movie_cut3.srt: all 9 takes re-recorded with the take cursor and jury view open on every lesson take, textbook still opens and parent-report still closes with push-in + crossfades + fades, captions get a minimum on-screen time with last-frame freezes where footage runs short (src/assemble_movie.py rewritten, src/record_takes.py home take opens jury).
+- [x] Caption rework on movie_cut3 (2:17, 56 cues): short cues split on sentence/comma boundaries fitted inside each section span (no spill into the next part, fixed crossfade-span math), small white text on a solid bottom black bar (1/10 height), last line lands on the closing still.
+- [x] Caption band moved below the picture (1280x720 squeeze + 80px pad, format stays 1280x800, smaller type), intro held to 20s on screen with its captions.
+- [x] Intro choreography: opening still eases in ~20s carrying the whole monologue, crossfades to the home take exactly on "So I built something that can." (take1 window moved past loading to 4.5s, tail-trimmed to the last cue; adaptive push-in rate).
